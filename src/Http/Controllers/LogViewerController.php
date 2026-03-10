@@ -305,7 +305,10 @@ class LogViewerController extends Controller
                 return false;
             });
 
-        return response()->streamDownload(function () use ($entries) {
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->streamDownload(function () use ($entries) {
             $handle = fopen('php://output', 'w');
             if ($handle === false) {
                 return;
@@ -400,7 +403,10 @@ class LogViewerController extends Controller
         $date = is_string($date) ? $date : '';
         $this->recordAction('delete_log', ['date' => $date]);
 
-        return response()->json([
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json([
             'result' => $this->logViewer->delete($date) ? 'success' : 'error',
         ]);
     }
@@ -627,7 +633,7 @@ class LogViewerController extends Controller
             $results->count(),
             $this->perPage,
             $page,
-            ['path' => $request->url(), 'query' => request()->query()]
+            ['path' => $request->url(), 'query' => $request->query()]
         );
 
         $query = $id;
@@ -665,7 +671,10 @@ class LogViewerController extends Controller
         try {
             $log = $this->logViewer->get($date);
         } catch (\Exception $e) {
-            return response()->json(['content' => '', 'offset' => $offset]);
+            /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+            $factory = response();
+
+            return $factory->json(['content' => '', 'offset' => $offset]);
         }
 
         $path = $log->getPath();
@@ -679,7 +688,10 @@ class LogViewerController extends Controller
 
         $handle = fopen($path, 'r');
         if ($handle === false) {
-            return response()->json(['content' => '', 'offset' => $offset]);
+            /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+            $factory = response();
+
+            return $factory->json(['content' => '', 'offset' => $offset]);
         }
         fseek($handle, (int) $offset);
         $content = '';
@@ -698,7 +710,10 @@ class LogViewerController extends Controller
             $content
         );
 
-        return response()->json(['content' => $content, 'offset' => $newOffset]);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json(['content' => $content, 'offset' => $newOffset]);
     }
 
     /**
@@ -913,7 +928,10 @@ class LogViewerController extends Controller
         file_put_contents($path, json_encode($notes, JSON_PRETTY_PRINT));
         $this->recordAction('add_note', ['hash' => $hash]);
 
-        return response()->json(['success' => true]);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json(['success' => true]);
     }
 
     /**
@@ -956,7 +974,10 @@ class LogViewerController extends Controller
         file_put_contents($path, json_encode($searches, JSON_PRETTY_PRINT));
         $this->recordAction('save_search', ['label' => $request->input('label')]);
 
-        return response()->json(['success' => true]);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json(['success' => true]);
     }
 
     /**
@@ -992,7 +1013,10 @@ class LogViewerController extends Controller
         file_put_contents($path, json_encode($settings, JSON_PRETTY_PRINT));
         $this->recordAction('configure_notifications');
 
-        return response()->json(['success' => true]);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json(['success' => true]);
     }
 
     /**
@@ -1063,7 +1087,10 @@ class LogViewerController extends Controller
         }
         $this->recordAction('ai_explain', ['message_snippet' => Str::limit($message, 50)]);
 
-        return response()->json(['success' => true, 'explanation' => $result['reason'], 'fix' => $result['solution'], 'is_mock' => true]);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json(['success' => true, 'explanation' => $result['reason'], 'fix' => $result['solution'], 'is_mock' => true]);
     }
 
     /**
@@ -1180,7 +1207,10 @@ class LogViewerController extends Controller
         $this->authorizeAction('configure_notifications');
         $this->dispatchAlert('critical', 'This is a test notification from LogViewer Predictive Ops.');
 
-        return response()->json(['success' => true]);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json(['success' => true]);
     }
 
     /**
@@ -1208,7 +1238,10 @@ class LogViewerController extends Controller
 
         $this->recordAction('cleanup_logs', ['deleted_files' => $deletedCount]);
 
-        return response()->json([
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json([
             'success' => true,
             'message' => "Cleanup completed. {$deletedCount} log files identified for removal.",
         ]);
@@ -1244,13 +1277,19 @@ class LogViewerController extends Controller
         $settings = $this->getNotificationSettings();
 
         if (empty($settings['email_alerts'])) {
-            return response()->json(['success' => false, 'message' => 'Email destination not configured in Notification Hub.']);
+            /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+            $factory = response();
+
+            return $factory->json(['success' => false, 'message' => 'Email destination not configured in Notification Hub.']);
         }
 
         $this->recordAction('email_report', ['to' => $settings['email_alerts']]);
 
         // Mocking email dispatch
-        return response()->json([
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json([
             'success' => true,
             'message' => 'Enterprise Report successfully queued for delivery to: '.(is_string($settings['email_alerts']) ? $settings['email_alerts'] : ''),
         ]);
@@ -1271,7 +1310,10 @@ class LogViewerController extends Controller
 
         $this->recordAction('push_to_tracker', ['type' => $request->get('type'), 'header' => $request->get('header')]);
 
-        return response()->json([
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->json([
             'success' => true,
             'message' => 'Log entry successfully pushed to '.ucfirst(is_string($request->get('type')) ? $request->get('type') : ''),
             'issue_id' => ($request->get('type') === 'jira' ? 'LOG-' : 'ISSUE-').rand(1000, 9999),
@@ -1299,7 +1341,9 @@ class LogViewerController extends Controller
             $audit = [];
         } // Handle corrupted file
 
-        $user = request()->user();
+        /** @var Request $request */
+        $request = request();
+        $user = $request->user();
         /** @var string|int|null $userKey */
         $userKey = ($user instanceof \Illuminate\Contracts\Auth\Authenticatable) ? $user->getAuthIdentifier() : null;
         $audit[] = [
@@ -1307,7 +1351,7 @@ class LogViewerController extends Controller
             'user' => $userKey !== null ? (string) $userKey : 'guest',
             'action' => $action,
             'details' => $details,
-            'ip' => request()->ip(),
+            'ip' => $request->ip(),
         ];
 
         // Keep only last 1000 entries to prevent infinite growth

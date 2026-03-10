@@ -214,7 +214,10 @@ class LogViewer implements LogViewerContract
 
         $path = $this->filesystem->path($date);
 
-        return response()->download($path, $filename, $headers);
+        /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
+        $factory = response();
+
+        return $factory->download($path, $filename, $headers);
     }
 
     /**

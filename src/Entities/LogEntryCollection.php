@@ -54,9 +54,11 @@ class LogEntryCollection extends LazyCollection
      */
     public function paginate($perPage = 20)
     {
-        $page = request()->get('page', 1);
+        /** @var \Illuminate\Http\Request $request */
+        $request = request();
+        $page = $request->get('page', 1);
         $page = is_numeric($page) ? (int) $page : 1;
-        $path = request()->url();
+        $path = $request->url();
 
         return new LengthAwarePaginator(
             $this->forPage($page, $perPage),

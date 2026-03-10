@@ -12,7 +12,10 @@ if (! function_exists('log_viewer')) {
      */
     function log_viewer()
     {
-        return app(Contracts\LogViewer::class);
+        /** @var \Skywalker\LogViewer\Contracts\LogViewer $instance */
+        $instance = app(Contracts\LogViewer::class);
+
+        return $instance;
     }
 }
 
@@ -24,7 +27,10 @@ if (! function_exists('log_levels')) {
      */
     function log_levels()
     {
-        return app(Contracts\Utilities\LogLevels::class);
+        /** @var \Skywalker\LogViewer\Contracts\Utilities\LogLevels $instance */
+        $instance = app(Contracts\Utilities\LogLevels::class);
+
+        return $instance;
     }
 }
 
@@ -36,7 +42,10 @@ if (! function_exists('log_menu')) {
      */
     function log_menu()
     {
-        return app(Contracts\Utilities\LogMenu::class);
+        /** @var \Skywalker\LogViewer\Contracts\Utilities\LogMenu $instance */
+        $instance = app(Contracts\Utilities\LogMenu::class);
+
+        return $instance;
     }
 }
 
@@ -48,6 +57,9 @@ if (! function_exists('log_styler')) {
      */
     function log_styler()
     {
-        return app(Contracts\Utilities\LogStyler::class);
+        /** @var \Skywalker\LogViewer\Contracts\Utilities\LogStyler $instance */
+        $instance = app(Contracts\Utilities\LogStyler::class);
+
+        return $instance;
     }
 }

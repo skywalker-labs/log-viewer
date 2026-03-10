@@ -80,7 +80,9 @@ abstract class AbstractTable implements TableContract
     protected function setLocale(?string $locale)
     {
         if (is_null($locale) || $locale === 'auto') {
-            $locale = app()->getLocale();
+            /** @var \Illuminate\Foundation\Application $app */
+            $app = app();
+            $locale = $app->getLocale();
         }
 
         $this->locale = $locale;
