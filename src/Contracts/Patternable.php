@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Contracts;
 
@@ -31,12 +31,11 @@ interface Patternable
      * @param  string  $date
      * @param  string  $prefix
      * @param  string  $extension
-     *
      * @return self
      */
     public function setPattern(
-        $prefix    = Filesystem::PATTERN_PREFIX,
-        $date      = Filesystem::PATTERN_DATE,
+        $prefix = Filesystem::PATTERN_PREFIX,
+        $date = Filesystem::PATTERN_DATE,
         $extension = Filesystem::PATTERN_EXTENSION
     );
 }

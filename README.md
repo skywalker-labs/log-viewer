@@ -3,10 +3,12 @@
 # 🛠️ LogViewer: Enterprise Multi-Channel Intelligence
 ### *Ultra-High Performance Log Management for Laravel 12+*
 
-[![Latest Version on Packagist](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)](https://packagist.org/packages/skywalker-labs/log-viewer)
-[![Laravel Version](https://img.shields.io/badge/Laravel-12.x-red.svg?style=for-the-badge)](https://laravel.com)
-[![PHP Version](https://img.shields.io/badge/PHP-8.4+-777bb4.svg?style=for-the-badge)](https://php.net)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/github/v/release/skywalker-labs/log-viewer?style=for-the-badge)](https://github.com/skywalker-labs/log-viewer/releases)
+[![Total Downloads](https://img.shields.io/packagist/dt/skywalker-labs/log-viewer.svg?style=for-the-badge)](https://packagist.org/packages/skywalker-labs/log-viewer)
+[![PHPStan Level 9](https://img.shields.io/badge/PHPStan-Level%209-brightgreen.svg?style=for-the-badge)](https://phpstan.org)
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue.svg?style=for-the-badge)](https://www.php.net/)
+[![License](https://img.shields.io/packagist/l/skywalker-labs/log-viewer.svg?style=for-the-badge)](LICENSE.md)
+[![Security Policy](https://img.shields.io/badge/security-policy-brightgreen.svg?style=for-the-badge)](SECURITY.md)
 
 ---
 
@@ -21,9 +23,30 @@
 While standard viewers struggle with massive flat files, LogViewer utilizes a **Streamed-Buffer Architecture**. It scales linearly with your log size, ensuring your production server stays responsive even when analyzing GBs of data.
 
 - ⚡ **Zero-Memory Footprint:** Uses PHP generators for line-by-line streaming.
+- 🏗️ **Toolkit Foundation:** Built on top of `skywalker-labs/toolkit` for consistent, action-oriented elite architecture.
 - 🔍 **Multi-Channel Intelligence:** Automatically detects and segments logs from different Laravel channels.
 - 🛡️ **PII Masking:** Built-in filters to redact sensitive user data (Emails, Auth Tokens) before they hit the screen.
 - 🎨 **Modern DX:** Beautiful, high-contrast UI with dark mode support.
+- 💎 **Strictly Typed:** 100% PHPStan Level 9 compliance for maximum reliability.
+
+---
+
+## ⚡ Elite Quick Start (60 Seconds)
+
+Get up and running with three simple commands:
+
+```bash
+# 1. Install the package
+composer require skywalker-labs/log-viewer
+
+# 2. Publish assets & config
+php artisan log-viewer:publish
+
+# 3. Verify your setup
+php artisan log-viewer:check
+```
+
+Visit `your-app.test/log-viewer` and start debugging with intelligence.
 
 ---
 

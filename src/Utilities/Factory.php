@@ -1,14 +1,14 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Utilities;
 
 use Skywalker\LogViewer\Contracts\Utilities\Factory as FactoryContract;
 use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
 use Skywalker\LogViewer\Contracts\Utilities\LogLevels as LogLevelsContract;
-use Skywalker\LogViewer\Entities\LogCollection;
 use Skywalker\LogViewer\Entities\Log;
+use Skywalker\LogViewer\Entities\LogCollection;
 use Skywalker\LogViewer\Exceptions\LogNotFoundException;
 use Skywalker\LogViewer\Tables\StatsTable;
 
@@ -26,15 +26,11 @@ class Factory implements FactoryContract
 
     /**
      * The filesystem instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\Filesystem
      */
     protected FilesystemContract $filesystem;
 
     /**
      * The log levels instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\LogLevels
      */
     private LogLevelsContract $levels;
 
@@ -45,9 +41,6 @@ class Factory implements FactoryContract
 
     /**
      * Create a new instance.
-     *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogLevels   $levels
      */
     public function __construct(FilesystemContract $filesystem, LogLevelsContract $levels)
     {
@@ -73,7 +66,6 @@ class Factory implements FactoryContract
     /**
      * Set the filesystem instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
      *
      * @return self
      */
@@ -97,7 +89,6 @@ class Factory implements FactoryContract
     /**
      * Set the log levels instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogLevels  $levels
      *
      * @return self
      */
@@ -112,7 +103,6 @@ class Factory implements FactoryContract
      * Set the log storage path.
      *
      * @param  string  $storagePath
-     *
      * @return self
      */
     public function setPath($storagePath)
@@ -138,12 +128,11 @@ class Factory implements FactoryContract
      * @param  string  $date
      * @param  string  $prefix
      * @param  string  $extension
-     *
      * @return self
      */
     public function setPattern(
-        $prefix    = FilesystemContract::PATTERN_PREFIX,
-        $date      = FilesystemContract::PATTERN_DATE,
+        $prefix = FilesystemContract::PATTERN_PREFIX,
+        $date = FilesystemContract::PATTERN_DATE,
         $extension = FilesystemContract::PATTERN_EXTENSION
     ) {
         $this->filesystem->setPattern($prefix, $date, $extension);
@@ -182,8 +171,7 @@ class Factory implements FactoryContract
      * Paginate all logs.
      *
      * @param  int  $perPage
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, mixed>
      */
     public function paginate($perPage = 30)
     {
@@ -194,13 +182,12 @@ class Factory implements FactoryContract
      * Get a log by date.
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     public function log($date)
     {
         $dates = $this->filesystem->dates(true);
-        if (!isset($dates[$date])) {
+        if (! isset($dates[$date])) {
             throw new LogNotFoundException("Log not found in this date [$date]");
         }
 
@@ -209,14 +196,13 @@ class Factory implements FactoryContract
         $path = $dates[$date];
         $raw = file_get_contents($path);
 
-        return new Log($date, $path, $raw);
+        return new Log($date, $path, is_string($raw) ? $raw : '');
     }
 
     /**
      * Get a log by date (alias).
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     public function get($date)
@@ -229,7 +215,6 @@ class Factory implements FactoryContract
      *
      * @param  string  $date
      * @param  string  $level
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     public function entries($date, $level = 'all')
@@ -240,7 +225,7 @@ class Factory implements FactoryContract
     /**
      * Get logs statistics.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function stats()
     {
@@ -251,7 +236,6 @@ class Factory implements FactoryContract
      * Get logs statistics table.
      *
      * @param  string|null  $locale
-     *
      * @return \Skywalker\LogViewer\Tables\StatsTable
      */
     public function statsTable($locale = null)
@@ -262,7 +246,7 @@ class Factory implements FactoryContract
     /**
      * List the log files (dates).
      *
-     * @return array
+     * @return array<int, string>
      */
     public function dates()
     {
@@ -283,7 +267,6 @@ class Factory implements FactoryContract
      * Get total log entries.
      *
      * @param  string  $level
-     *
      * @return int
      */
     public function total($level = 'all')
@@ -295,8 +278,7 @@ class Factory implements FactoryContract
      * Get tree menu.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function tree($trans = false)
     {
@@ -307,8 +289,7 @@ class Factory implements FactoryContract
      * Get tree menu.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function menu($trans = true)
     {

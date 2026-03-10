@@ -1,21 +1,22 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Utilities;
 
+use Exception;
+use Illuminate\Filesystem\Filesystem as IlluminateFilesystem;
 use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
 use Skywalker\LogViewer\Exceptions\FilesystemException;
 use Skywalker\LogViewer\Helpers\LogParser;
-use Exception;
-use Illuminate\Filesystem\Filesystem as IlluminateFilesystem;
+use Skywalker\Support\Filesystem\Filesystem as ToolkitFilesystem;
 
 /**
  * Class     Filesystem
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  */
-class Filesystem implements FilesystemContract
+class Filesystem extends ToolkitFilesystem implements FilesystemContract
 {
     /* -----------------------------------------------------------------
      |  Properties
@@ -23,37 +24,22 @@ class Filesystem implements FilesystemContract
      */
 
     /**
-     * The filesystem instance.
-     *
-     * @var \Illuminate\Filesystem\Filesystem
-     */
-    protected IlluminateFilesystem $filesystem;
-
-    /**
      * The base storage path.
-     *
-     * @var string
      */
     protected string $storagePath;
 
     /**
      * The log files prefix pattern.
-     *
-     * @var string
      */
     protected string $prefixPattern;
 
     /**
      * The log files date pattern.
-     *
-     * @var string
      */
     protected string $datePattern;
 
     /**
      * The log files extension.
-     *
-     * @var string
      */
     protected string $extension;
 
@@ -65,12 +51,10 @@ class Filesystem implements FilesystemContract
     /**
      * Filesystem constructor.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
-     * @param  string                             $storagePath
+     * @param  string  $storagePath
      */
-    public function __construct(IlluminateFilesystem $files, $storagePath)
+    public function __construct($storagePath)
     {
-        $this->filesystem  = $files;
         $this->setPath($storagePath);
         $this->setPattern();
     }
@@ -83,18 +67,17 @@ class Filesystem implements FilesystemContract
     /**
      * Get the files instance.
      *
-     * @return \Illuminate\Filesystem\Filesystem
+     * @return $this
      */
     public function getInstance()
     {
-        return $this->filesystem;
+        return $this;
     }
 
     /**
      * Set the log storage path.
      *
      * @param  string  $storagePath
-     *
      * @return $this
      */
     public function setPath($storagePath)
@@ -106,12 +89,10 @@ class Filesystem implements FilesystemContract
 
     /**
      * Get the log pattern.
-     *
-     * @return string
      */
     public function getPattern(): string
     {
-        return $this->prefixPattern . $this->datePattern . $this->extension;
+        return $this->prefixPattern.$this->datePattern.$this->extension;
     }
 
     /**
@@ -120,12 +101,11 @@ class Filesystem implements FilesystemContract
      * @param  string  $date
      * @param  string  $prefix
      * @param  string  $extension
-     *
      * @return $this
      */
     public function setPattern(
-        $prefix    = self::PATTERN_PREFIX,
-        $date      = self::PATTERN_DATE,
+        $prefix = self::PATTERN_PREFIX,
+        $date = self::PATTERN_DATE,
         $extension = self::PATTERN_EXTENSION
     ) {
         $this->setPrefixPattern($prefix);
@@ -139,7 +119,6 @@ class Filesystem implements FilesystemContract
      * Set the log date pattern.
      *
      * @param  string  $datePattern
-     *
      * @return $this
      */
     public function setDatePattern($datePattern)
@@ -153,7 +132,6 @@ class Filesystem implements FilesystemContract
      * Set the log prefix pattern.
      *
      * @param  string  $prefixPattern
-     *
      * @return $this
      */
     public function setPrefixPattern($prefixPattern)
@@ -167,7 +145,6 @@ class Filesystem implements FilesystemContract
      * Set the log extension.
      *
      * @param  string  $extension
-     *
      * @return $this
      */
     public function setExtension($extension)
@@ -185,11 +162,11 @@ class Filesystem implements FilesystemContract
     /**
      * Get all log files.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function all()
     {
-        return $this->getFiles('*' . $this->extension);
+        return $this->getFiles('*'.$this->extension);
     }
 
     public function logs()
@@ -201,8 +178,7 @@ class Filesystem implements FilesystemContract
      * List the log files (Only dates).
      *
      * @param  bool  $withPaths
-     *
-     * @return array
+     * @return array<int, string>|array<string, string>
      */
     public function dates($withPaths = false)
     {
@@ -213,31 +189,24 @@ class Filesystem implements FilesystemContract
             $dateFromFilename = LogParser::extractDate(basename($file));
 
             // Check if filename matches the date pattern (Standard Log)
-            if (preg_match('/' . LogParser::REGEX_DATE_PATTERN . '/', $dateFromFilename)) {
+            if (preg_match('/'.LogParser::REGEX_DATE_PATTERN.'/', $dateFromFilename)) {
                 $dateMap[$dateFromFilename] = $file;
+
                 continue;
             }
 
             // If filename doesn't have a date (e.g. laravel.log), scan content
             try {
-                // Read the first 2MB to find dates. 
-                // Reading whole file might be too heavy for huge logs, but limiting might miss dates.
-                // For now, let's look for dates in the whole file as requested.
-
-                // Using generic file_get_contents via filesystem adapter if possible, 
-                // but we have absolute path $file here.
-                $content = file_get_contents($file);
+                $content = $this->get($file);
 
                 if ($content) {
-                    preg_match_all('/\[' . LogParser::REGEX_DATE_PATTERN . '/', $content, $matches);
-                    if (!empty($matches[0])) {
+                    preg_match_all('/\['.LogParser::REGEX_DATE_PATTERN.'/', $content, $matches);
+                    if (! empty($matches[0])) {
                         $dates = array_unique($matches[0]);
                         $baseName = pathinfo($file, PATHINFO_FILENAME);
                         foreach ($dates as $dateStr) {
-                            // remove brackets '['
                             $cleanDate = substr($dateStr, 1);
-                            // Create unique key: "2026-02-06 (laravel)"
-                            $key = $cleanDate . ' (' . $baseName . ')';
+                            $key = $cleanDate.' ('.$baseName.')';
                             $dateMap[$key] = $file;
                         }
                     }
@@ -261,7 +230,6 @@ class Filesystem implements FilesystemContract
      * Read the log.
      *
      * @param  string  $date
-     *
      * @return string
      *
      * @throws \Skywalker\LogViewer\Exceptions\FilesystemException
@@ -269,7 +237,7 @@ class Filesystem implements FilesystemContract
     public function read($date)
     {
         try {
-            $log = $this->filesystem->get(
+            $log = $this->get(
                 $this->getLogPath($date)
             );
         } catch (Exception $e) {
@@ -280,19 +248,17 @@ class Filesystem implements FilesystemContract
     }
 
     /**
-     * Delete the log.
-     *
-     * @param  string  $date
+     * Delete the log by date.
      *
      * @return bool
      *
      * @throws \Skywalker\LogViewer\Exceptions\FilesystemException
      */
-    public function delete(string $date)
+    public function deleteByDate(string $date)
     {
         $path = $this->getLogPath($date);
 
-        throw_unless($this->filesystem->delete($path), FilesystemException::cannotDeleteLog());
+        throw_unless(parent::delete($path), FilesystemException::cannotDeleteLog());
 
         return true;
     }
@@ -304,14 +270,13 @@ class Filesystem implements FilesystemContract
      */
     public function clear()
     {
-        return $this->filesystem->delete($this->logs());
+        return parent::delete($this->logs());
     }
 
     /**
      * Get the log file path.
      *
      * @param  string  $date
-     *
      * @return string
      */
     public function path($date)
@@ -328,13 +293,12 @@ class Filesystem implements FilesystemContract
      * Get all files.
      *
      * @param  string  $pattern
-     *
-     * @return array
+     * @return array<int, string>
      */
     private function getFiles($pattern)
     {
-        $files = $this->filesystem->glob(
-            $this->storagePath . DIRECTORY_SEPARATOR . $pattern,
+        $files = $this->glob(
+            $this->storagePath.DIRECTORY_SEPARATOR.$pattern,
             defined('GLOB_BRACE') ? GLOB_BRACE : 0
         );
 
@@ -344,7 +308,6 @@ class Filesystem implements FilesystemContract
     /**
      * Get the log file path.
      *
-     * @param  string  $date
      *
      * @return string
      *
@@ -353,42 +316,37 @@ class Filesystem implements FilesystemContract
     private function getLogPath(string $date)
     {
         if (preg_match('/(.+) \((.+)\)$/', $date, $matches)) {
-            $date     = $matches[1];
+            $date = $matches[1];
             $filename = $matches[2];
-            $path     = $this->storagePath . DIRECTORY_SEPARATOR . $filename . $this->extension;
+            $path = $this->storagePath.DIRECTORY_SEPARATOR.$filename.$this->extension;
 
-            if ($this->filesystem->exists($path)) {
-                return realpath($path);
+            if ($this->exists($path)) {
+                $real = realpath($path);
+                if (is_string($real)) {
+                    return $real;
+                }
             }
         }
 
-        $path = $this->storagePath . DIRECTORY_SEPARATOR . $this->prefixPattern . $date . $this->extension;
+        $path = $this->storagePath.DIRECTORY_SEPARATOR.$this->prefixPattern.$date.$this->extension;
 
-        if ($this->filesystem->exists($path)) {
-            return realpath($path);
+        if ($this->exists($path)) {
+            $real = realpath($path);
+            if (is_string($real)) {
+                return $real;
+            }
         }
 
         // Try to check if date is the filename
-        $path = $this->storagePath . DIRECTORY_SEPARATOR . $date;
+        $path = $this->storagePath.DIRECTORY_SEPARATOR.$date;
 
-        if ($this->filesystem->exists($path)) {
-            return realpath($path);
+        if ($this->exists($path)) {
+            $real = realpath($path);
+            if (is_string($real)) {
+                return $real;
+            }
         }
 
         throw FilesystemException::invalidPath($path);
-    }
-
-    /**
-     * Extract dates from files.
-     *
-     * @param  array  $files
-     *
-     * @return array
-     */
-    private function extractDates(array $files)
-    {
-        return array_map(function ($file) {
-            return LogParser::extractDate(basename($file));
-        }, $files);
     }
 }

@@ -1,13 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Utilities;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Tests\TestCase;
 use Skywalker\LogViewer\Utilities\LogMenu;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     LogMenuTest
@@ -21,7 +20,6 @@ class LogMenuTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Utilities\LogMenu */
     private LogMenu $menu;
 
     /* -----------------------------------------------------------------
@@ -49,72 +47,70 @@ class LogMenuTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(LogMenu::class, $this->menu);
     }
 
     #[Test]
-
     public function it_can_make_menu_with_helper(): void
     {
         $log = $this->getLog('2015-01-01');
 
         $expected = [
-            'all'       => [
-                'name'  => 'All',
+            'all' => [
+                'name' => 'All',
                 'count' => 8,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/all',
-                'icon'  => '<i class="fa fa-fw fa-list"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/all',
+                'icon' => '<i class="fa fa-fw fa-list"></i>',
             ],
             'emergency' => [
-                'name'  => 'Emergency',
+                'name' => 'Emergency',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/emergency',
-                'icon'  => '<i class="fa fa-fw fa-bug"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/emergency',
+                'icon' => '<i class="fa fa-fw fa-bug"></i>',
             ],
-            'alert'     => [
-                'name'  => 'Alert',
+            'alert' => [
+                'name' => 'Alert',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/alert',
-                'icon'  => '<i class="fa fa-fw fa-bullhorn"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/alert',
+                'icon' => '<i class="fa fa-fw fa-bullhorn"></i>',
             ],
-            'critical'  => [
-                'name'  => 'Critical',
+            'critical' => [
+                'name' => 'Critical',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/critical',
-                'icon'  => '<i class="fa fa-fw fa-heartbeat"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/critical',
+                'icon' => '<i class="fa fa-fw fa-heartbeat"></i>',
             ],
-            'error'     => [
-                'name'  => 'Error',
+            'error' => [
+                'name' => 'Error',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/error',
-                'icon'  => '<i class="fa fa-fw fa-times-circle"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/error',
+                'icon' => '<i class="fa fa-fw fa-times-circle"></i>',
             ],
-            'warning'   => [
-                'name'  => 'Warning',
+            'warning' => [
+                'name' => 'Warning',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/warning',
-                'icon'  => '<i class="fa fa-fw fa-exclamation-triangle"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/warning',
+                'icon' => '<i class="fa fa-fw fa-exclamation-triangle"></i>',
             ],
-            'notice'    => [
-                'name'  => 'Notice',
+            'notice' => [
+                'name' => 'Notice',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/notice',
-                'icon'  => '<i class="fa fa-fw fa-exclamation-circle"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/notice',
+                'icon' => '<i class="fa fa-fw fa-exclamation-circle"></i>',
             ],
-            'info'      => [
-                'name'  => 'Info',
+            'info' => [
+                'name' => 'Info',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/info',
-                'icon'  => '<i class="fa fa-fw fa-info-circle"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/info',
+                'icon' => '<i class="fa fa-fw fa-info-circle"></i>',
             ],
-            'debug'     => [
+            'debug' => [
                 'name' => 'Debug',
                 'count' => 1,
-                'url'   => 'http://localhost/log-viewer/logs/2015-01-01/debug',
-                'icon'  => '<i class="fa fa-fw fa-life-ring"></i>',
+                'url' => 'http://localhost/log-viewer/logs/2015-01-01/debug',
+                'icon' => '<i class="fa fa-fw fa-life-ring"></i>',
             ],
         ];
 

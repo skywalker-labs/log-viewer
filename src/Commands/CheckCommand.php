@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Commands;
 
@@ -23,7 +23,7 @@ class CheckCommand extends Command
      *
      * @var string
      */
-    protected $name      = 'log-viewer:check';
+    protected $name = 'log-viewer:check';
 
     /**
      * The console command description.
@@ -46,12 +46,10 @@ class CheckCommand extends Command
 
     /**
      * Get the Log Checker instance.
-     *
-     * @return \Skywalker\LogViewer\Contracts\Utilities\LogChecker
      */
-    protected function getChecker()
+    protected function getChecker(): LogCheckerContract
     {
-        return $this->laravel[LogCheckerContract::class];
+        return app(LogCheckerContract::class);
     }
 
     /* -----------------------------------------------------------------
@@ -79,7 +77,7 @@ class CheckCommand extends Command
     /**
      * Display LogViewer requirements.
      */
-    private function displayRequirements()
+    private function displayRequirements(): void
     {
         $requirements = $this->getChecker()->requirements();
 
@@ -87,22 +85,24 @@ class CheckCommand extends Command
 
         $this->table([
             'Status',
-            'Message'
+            'Message',
         ], [
-            [$requirements['status'], $requirements['message']]
+            [$requirements['status'], $requirements['message']],
         ]);
     }
 
     /**
      * Display LogViewer messages.
      */
-    private function displayMessages()
+    private function displayMessages(): void
     {
         $messages = $this->getChecker()->messages();
 
         $rows = [];
-        foreach ($messages['files'] as $file => $message) {
-            $rows[] = [$file, $message];
+        if (isset($messages['files']) && is_array($messages['files'])) {
+            foreach ($messages['files'] as $file => $message) {
+                $rows[] = [$file, $message];
+            }
         }
 
         if (! empty($rows)) {

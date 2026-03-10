@@ -1,11 +1,8 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Helpers;
-
-use Skywalker\LogViewer\Utilities\LogLevels;
-use Illuminate\Support\Str;
 
 /**
  * Class     LogParser
@@ -19,9 +16,11 @@ class LogParser
      | -----------------------------------------------------------------
      */
 
-    const REGEX_DATE_PATTERN     = '\d{4}(-\d{2}){2}';
-    const REGEX_TIME_PATTERN     = '\d{2}(:\d{2}){2}';
-    const REGEX_DATETIME_PATTERN = self::REGEX_DATE_PATTERN . ' ' . self::REGEX_TIME_PATTERN;
+    const REGEX_DATE_PATTERN = '\d{4}(-\d{2}){2}';
+
+    const REGEX_TIME_PATTERN = '\d{2}(:\d{2}){2}';
+
+    const REGEX_DATETIME_PATTERN = self::REGEX_DATE_PATTERN.' '.self::REGEX_TIME_PATTERN;
 
     /* -----------------------------------------------------------------
      |  Properties
@@ -31,7 +30,7 @@ class LogParser
     /**
      * Parsed data.
      *
-     * @var array
+     * @var array<int, array<string, mixed>>
      */
     protected static $parsed = [];
 
@@ -45,15 +44,14 @@ class LogParser
      *
      * @param  string  $raw
      * @param  string  $channel
-     *
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
     public static function parse($raw, $channel = 'laravel')
     {
         static::$parsed = [];
         $pattern = config("log-viewer.channels.{$channel}.pattern");
 
-        if (! $pattern) {
+        if (! is_string($pattern) || ! $pattern) {
             // Fallback to basic Laravel pattern if channel not found
             $pattern = '/^\[(?P<datetime>.*?)\] (?P<env>\w+)\.(?P<level>\w+): (?P<header>.*)/m';
         }
@@ -63,7 +61,9 @@ class LogParser
         $currentEntry = null;
 
         foreach ($lines as $line) {
-            if (empty(trim($line))) continue;
+            if (empty(trim($line))) {
+                continue;
+            }
 
             if (preg_match($pattern, $line, $matches)) {
                 if ($currentEntry) {
@@ -72,16 +72,16 @@ class LogParser
 
                 $currentEntry = [
                     'datetime' => $matches['datetime'] ?? '',
-                    'level'    => strtolower($matches['level'] ?? 'info'),
-                    'env'      => $matches['env'] ?? 'local',
-                    'header'   => $matches['header'] ?? '',
-                    'ip'       => $matches['ip'] ?? null,
-                    'cid'      => $matches['cid'] ?? null,
-                    'stack'    => '',
+                    'level' => strtolower($matches['level'] ?? 'info'),
+                    'env' => $matches['env'] ?? 'local',
+                    'header' => $matches['header'] ?? '',
+                    'ip' => $matches['ip'] ?? null,
+                    'cid' => $matches['cid'] ?? null,
+                    'stack' => '',
                 ];
             } elseif ($currentEntry) {
                 // It's a stack trace or continuation
-                $currentEntry['stack'] .= $line . "\n";
+                $currentEntry['stack'] .= $line."\n";
             }
         }
 
@@ -94,26 +94,13 @@ class LogParser
 
     /**
      * Extract the date from a string.
-     *
-     * @param  string  $string
-     *
-     * @return string
      */
     public static function extractDate(string $string): string
     {
-        return preg_replace('/.*(' . self::REGEX_DATE_PATTERN . ').*/', '$1', $string);
+        $extracted = preg_replace('/.*('.self::REGEX_DATE_PATTERN.').*/', '$1', $string);
+
+        return is_string($extracted) ? $extracted : $string;
     }
 
-    /**
-     * Check if header has a log level.
-     *
-     * @param  string  $heading
-     * @param  string  $level
-     *
-     * @return bool
-     */
-    private static function hasLogLevel($heading, $level)
-    {
-        return Str::contains(Str::lower($heading), strtolower(".{$level}:"));
-    }
+    /* Removed unused hasLogLevel */
 }

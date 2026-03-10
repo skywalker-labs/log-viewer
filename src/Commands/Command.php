@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Commands;
 
@@ -19,7 +19,6 @@ abstract class Command extends BaseCommand
      | -----------------------------------------------------------------
      */
 
-    /** @var \Skywalker\LogViewer\Contracts\LogViewer */
     protected LogViewerContract $logViewer;
 
     /* -----------------------------------------------------------------
@@ -29,8 +28,6 @@ abstract class Command extends BaseCommand
 
     /**
      * Create the command instance.
-     *
-     * @param  \Skywalker\LogViewer\Contracts\LogViewer  $logViewer
      */
     public function __construct(LogViewerContract $logViewer)
     {
@@ -47,7 +44,7 @@ abstract class Command extends BaseCommand
     /**
      * Display LogViewer Logo and Copyrights.
      */
-    protected function displayLogViewer()
+    protected function displayLogViewer(): void
     {
         // LOGO
         $this->comment('   __                   _                        ');
@@ -59,7 +56,7 @@ abstract class Command extends BaseCommand
         $this->line('');
 
         // Copyright
-        $this->comment('Version ' . $this->logViewer->version() . ' - Created by Mradul Sharma' . chr(169));
+        $this->comment('Version '.$this->logViewer->version().' - Created by Mradul Sharma'.chr(169));
         $this->line('');
     }
 }

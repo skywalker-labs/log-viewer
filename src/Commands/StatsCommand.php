@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Commands;
 
@@ -23,7 +23,7 @@ class StatsCommand extends Command
      *
      * @var string
      */
-    protected $name        = 'log-viewer:stats';
+    protected $name = 'log-viewer:stats';
 
     /**
      * The console command description.
@@ -37,7 +37,7 @@ class StatsCommand extends Command
      *
      * @var string
      */
-    protected $signature   = 'log-viewer:stats';
+    protected $signature = 'log-viewer:stats';
 
     /* -----------------------------------------------------------------
      |  Main Methods
@@ -50,11 +50,11 @@ class StatsCommand extends Command
     public function handle(): int
     {
         // Load Data
-        $stats   = $this->logViewer->statsTable('en');
+        $stats = $this->logViewer->statsTable('en');
 
-        $rows    = $stats->rows();
-        $rows[]  = $this->tableSeparator();
-        $rows[]  = $this->prepareFooter($stats);
+        $rows = $stats->rows();
+        $rows[] = $this->tableSeparator();
+        $rows[] = $this->prepareFooter($stats);
 
         // Display Data
         $this->displayLogViewer();
@@ -71,14 +71,12 @@ class StatsCommand extends Command
     /**
      * Prepare footer.
      *
-     * @param  \Skywalker\LogViewer\Tables\StatsTable  $stats
-     *
-     * @return array
+     * @return array<string, mixed>
      */
-    private function prepareFooter(StatsTable $stats)
+    private function prepareFooter(StatsTable $stats): array
     {
         $files = [
-            'count' => count($stats->rows()) . ' log file(s)'
+            'count' => count($stats->rows()).' log file(s)',
         ];
 
         return $files + $stats->footer();

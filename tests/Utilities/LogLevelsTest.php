@@ -1,13 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Utilities;
 
-use Skywalker\LogViewer\Utilities\LogLevels;
-use Skywalker\LogViewer\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-
+use Skywalker\LogViewer\Tests\TestCase;
+use Skywalker\LogViewer\Utilities\LogLevels;
 
 /**
  * Class     LogLevelsTest
@@ -21,7 +20,6 @@ class LogLevelsTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Utilities\LogLevels  */
     private LogLevels $levels;
 
     /* -----------------------------------------------------------------
@@ -29,14 +27,14 @@ class LogLevelsTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->levels = $this->app->make(\Skywalker\LogViewer\Contracts\Utilities\LogLevels::class);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->levels);
 
@@ -49,28 +47,24 @@ class LogLevelsTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(LogLevels::class, $this->levels);
     }
 
     #[Test]
-
     public function it_can_get_all_levels(): void
     {
         static::assertLevels($this->levels->lists());
     }
 
     #[Test]
-
     public function it_can_get_all_levels_by_static_method(): void
     {
         static::assertLevels(LogLevels::all());
     }
 
     #[Test]
-
     public function it_can_get_all_translated_levels(): void
     {
         foreach (self::$locales as $locale) {
@@ -83,7 +77,6 @@ class LogLevelsTest extends TestCase
     }
 
     #[Test]
-
     public function it_must_choose_the_log_viewer_locale_instead_of_app_locale(): void
     {
         static::assertNotEquals('auto', $this->levels->getLocale());
@@ -96,7 +89,6 @@ class LogLevelsTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_translate_levels_automatically(): void
     {
         foreach (self::$locales as $locale) {

@@ -1,21 +1,19 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer;
 
-use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
-use Skywalker\LogViewer\Contracts\Utilities\Factory as FactoryContract;
-use Skywalker\LogViewer\Contracts\Utilities\LogLevels as LogLevelsContract;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Skywalker\LogViewer\Contracts\LogViewer as LogViewerContract;
+use Skywalker\LogViewer\Contracts\Utilities\Factory as FactoryContract;
+use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
+use Skywalker\LogViewer\Contracts\Utilities\LogLevels as LogLevelsContract;
 use Skywalker\LogViewer\Entities\Log;
 use Skywalker\LogViewer\Entities\LogCollection;
 use Skywalker\LogViewer\Entities\LogEntryCollection;
 use Skywalker\LogViewer\Tables\StatsTable;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
-use Skywalker\Support\Http\Concerns\ApiResponse;
 
 /**
  * Class     LogViewer
@@ -24,8 +22,6 @@ use Skywalker\Support\Http\Concerns\ApiResponse;
  */
 class LogViewer implements LogViewerContract
 {
-    use ApiResponse;
-
     /**
      * The callback that should be used to determine the user's role.
      *
@@ -36,7 +32,6 @@ class LogViewer implements LogViewerContract
     /**
      * Set the callback that should be used to determine the user's role.
      *
-     * @param  \Closure  $callback
      * @return void
      */
     public static function auth(\Closure $callback)
@@ -60,22 +55,16 @@ class LogViewer implements LogViewerContract
 
     /**
      * The factory instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\Factory
      */
     protected FactoryContract $factory;
 
     /**
      * The filesystem instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\Filesystem
      */
     protected FilesystemContract $filesystem;
 
     /**
      * The log levels instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\LogLevels
      */
     protected LogLevelsContract $levels;
 
@@ -86,10 +75,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Create a new instance.
-     *
-     * @param \Skywalker\LogViewer\Contracts\Utilities\Factory $factory
-     * @param \Skywalker\LogViewer\Contracts\Utilities\Filesystem $filesystem
-     * @param \Skywalker\LogViewer\Contracts\Utilities\LogLevels $levels
      */
     public function __construct(
         FactoryContract $factory,
@@ -109,9 +94,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get the log levels.
      *
-     * @param bool $flip
-     *
-     * @return array
+     * @param  bool  $flip
      */
     public function levels($flip = false): array
     {
@@ -121,9 +104,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get the translated log levels.
      *
-     * @param string|null $locale
-     *
-     * @return array
+     * @param  string|null  $locale
      */
     public function levelsNames($locale = null): array
     {
@@ -133,9 +114,7 @@ class LogViewer implements LogViewerContract
     /**
      * Set the log storage path.
      *
-     * @param string $path
-     *
-     * @return self
+     * @param  string  $path
      */
     public function setPath($path): self
     {
@@ -146,8 +125,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Get the log pattern.
-     *
-     * @return string
      */
     public function getPattern(): string
     {
@@ -157,11 +134,9 @@ class LogViewer implements LogViewerContract
     /**
      * Set the log pattern.
      *
-     * @param string $date
-     * @param string $prefix
-     * @param string $extension
-     *
-     * @return self
+     * @param  string  $date
+     * @param  string  $prefix
+     * @param  string  $extension
      */
     public function setPattern(
         $prefix = FilesystemContract::PATTERN_PREFIX,
@@ -180,8 +155,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Get all logs.
-     *
-     * @return \Skywalker\LogViewer\Entities\LogCollection
      */
     public function all(): LogCollection
     {
@@ -191,9 +164,7 @@ class LogViewer implements LogViewerContract
     /**
      * Paginate all logs.
      *
-     * @param int $perPage
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @param  int  $perPage
      */
     public function paginate($perPage = 30): LengthAwarePaginator
     {
@@ -203,9 +174,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get a log.
      *
-     * @param string $date
-     *
-     * @return \Skywalker\LogViewer\Entities\Log
+     * @param  string  $date
      */
     public function get($date): Log
     {
@@ -215,10 +184,8 @@ class LogViewer implements LogViewerContract
     /**
      * Get the log entries.
      *
-     * @param string $date
-     * @param string $level
-     *
-     * @return \Skywalker\LogViewer\Entities\LogEntryCollection
+     * @param  string  $date
+     * @param  string  $level
      */
     public function entries($date, $level = 'all'): LogEntryCollection
     {
@@ -228,19 +195,20 @@ class LogViewer implements LogViewerContract
     /**
      * Download a log file.
      *
-     * @param string $date
-     * @param string|null $filename
-     * @param array $headers
-     *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param  string  $date
+     * @param  string|null  $filename
+     * @param  array<string, mixed>  $headers
      */
     public function download($date, $filename = null, $headers = []): BinaryFileResponse
     {
         if (is_null($filename)) {
+            $prefix = config('log-viewer.download.prefix', 'laravel-');
+            $extension = config('log-viewer.download.extension', 'log');
+
             $filename = sprintf(
                 "%s{$date}.%s",
-                config('log-viewer.download.prefix', 'laravel-'),
-                config('log-viewer.download.extension', 'log')
+                is_string($prefix) ? $prefix : 'laravel-',
+                is_string($extension) ? $extension : 'log'
             );
         }
 
@@ -251,8 +219,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Get logs statistics.
-     *
-     * @return array
      */
     public function stats(): array
     {
@@ -262,9 +228,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get logs statistics table.
      *
-     * @param string|null $locale
-     *
-     * @return \Skywalker\LogViewer\Tables\StatsTable
+     * @param  string|null  $locale
      */
     public function statsTable($locale = null): StatsTable
     {
@@ -274,19 +238,15 @@ class LogViewer implements LogViewerContract
     /**
      * Delete the log.
      *
-     * @param string $date
-     *
-     * @return bool
+     * @param  string  $date
      */
     public function delete($date): bool
     {
-        return $this->filesystem->delete($date);
+        return $this->filesystem->deleteByDate($date);
     }
 
     /**
      * Clear the log files.
-     *
-     * @return bool
      */
     public function clear(): bool
     {
@@ -295,8 +255,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Get all valid log files.
-     *
-     * @return array
      */
     public function files(): array
     {
@@ -305,8 +263,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * List the log files (only dates).
-     *
-     * @return array
      */
     public function dates(): array
     {
@@ -315,8 +271,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Get logs count.
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -326,9 +280,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get entries total from all logs.
      *
-     * @param string $level
-     *
-     * @return int
+     * @param  string  $level
      */
     public function total($level = 'all'): int
     {
@@ -338,9 +290,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get logs tree.
      *
-     * @param bool $trans
-     *
-     * @return array
+     * @param  bool  $trans
      */
     public function tree($trans = false): array
     {
@@ -350,9 +300,7 @@ class LogViewer implements LogViewerContract
     /**
      * Get logs menu.
      *
-     * @param bool $trans
-     *
-     * @return array
+     * @param  bool  $trans
      */
     public function menu($trans = true): array
     {
@@ -366,8 +314,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Determine if the log folder is empty or not.
-     *
-     * @return bool
      */
     public function isEmpty(): bool
     {
@@ -381,8 +327,6 @@ class LogViewer implements LogViewerContract
 
     /**
      * Get the LogViewer version.
-     *
-     * @return string
      */
     public function version(): string
     {

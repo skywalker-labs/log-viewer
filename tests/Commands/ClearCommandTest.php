@@ -1,13 +1,13 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Commands;
 
-use Skywalker\LogViewer\Contracts\LogViewer as LogViewerContract;
-use Skywalker\LogViewer\Tests\TestCase;
 use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
+use Skywalker\LogViewer\Contracts\LogViewer as LogViewerContract;
+use Skywalker\LogViewer\Tests\TestCase;
 
 /**
  * Class     ClearCommandTest
@@ -35,7 +35,7 @@ class ClearCommandTest extends TestCase
         parent::setUp();
 
         $this->logViewer = $this->app->make(LogViewerContract::class);
-        $this->path      = storage_path('logs-to-clear');
+        $this->path = storage_path('logs-to-clear');
 
         $this->setupForTests();
     }
@@ -55,7 +55,6 @@ class ClearCommandTest extends TestCase
     */
 
     #[Test]
-
     public function it_can_delete_all_log_files(): void
     {
         static::createDummyLog(date('Y-m-d'), storage_path('logs-to-clear'));
@@ -66,8 +65,7 @@ class ClearCommandTest extends TestCase
             ->artisan('log-viewer:clear')
             ->expectsQuestion('This will delete all the log files, Do you wish to continue?', 'yes')
             ->expectsOutput('Successfully cleared the logs!')
-            ->assertSuccessful()
-        ;
+            ->assertSuccessful();
 
         static::assertEquals(0, $this->logViewer->count());
     }

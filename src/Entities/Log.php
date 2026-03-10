@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Skywalker\LogViewer\Entities;
 
-use Illuminate\Contracts\Support\{Arrayable, Jsonable};
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Carbon;
 use JsonSerializable;
 use SplFileInfo;
@@ -11,6 +14,8 @@ use SplFileInfo;
  * Class     Log
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
+ *
+ * @implements Arrayable<string, mixed>
  */
 class Log implements Arrayable, Jsonable, JsonSerializable
 {
@@ -19,16 +24,12 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      | -----------------------------------------------------------------
      */
 
-    /** @var string */
     public string $date;
 
-    /** @var string */
     private string $path;
 
-    /** @var \Skywalker\LogViewer\Entities\LogEntryCollection */
     private LogEntryCollection $entries;
 
-    /** @var \SplFileInfo */
     private \SplFileInfo $file;
 
     /* -----------------------------------------------------------------
@@ -45,9 +46,9 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      */
     public function __construct($date, $path, $raw)
     {
-        $this->date    = $date;
-        $this->path    = $path;
-        $this->file    = new SplFileInfo($path);
+        $this->date = $date;
+        $this->path = $path;
+        $this->file = new SplFileInfo($path);
 
         // Load entries
         $entries = LogEntryCollection::load($raw);
@@ -132,7 +133,6 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * @param  string  $date
      * @param  string  $path
      * @param  string  $raw
-     *
      * @return self
      */
     public static function make($date, $path, $raw)
@@ -144,7 +144,6 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get log entries.
      *
      * @param  string  $level
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     public function entries($level = 'all')
@@ -158,7 +157,6 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get filtered log entries by level.
      *
      * @param  string  $level
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     public function getByLevel($level)
@@ -169,7 +167,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
     /**
      * Get log stats.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function stats()
     {
@@ -180,8 +178,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get the log navigation tree.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function tree($trans = false)
     {
@@ -192,8 +189,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get log entries menu.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function menu($trans = true)
     {
@@ -208,14 +204,14 @@ class Log implements Arrayable, Jsonable, JsonSerializable
     /**
      * Get the log as a plain array.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray()
     {
         return [
-            'date'    => $this->date,
-            'path'    => $this->path,
-            'entries' => $this->entries->toArray()
+            'date' => $this->date,
+            'path' => $this->path,
+            'entries' => $this->entries->toArray(),
         ];
     }
 
@@ -223,18 +219,17 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Convert the object to its JSON representation.
      *
      * @param  int  $options
-     *
      * @return string
      */
     public function toJson($options = 0)
     {
-        return json_encode($this->toArray(), $options);
+        return (string) json_encode($this->toArray(), $options);
     }
 
     /**
      * Serialize the log object to json data.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -251,7 +246,6 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      *
      * @param  int  $bytes
      * @param  int  $precision
-     *
      * @return string
      */
     private function formatSize($bytes, $precision = 2)
@@ -259,9 +253,10 @@ class Log implements Arrayable, Jsonable, JsonSerializable
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         $bytes = max($bytes, 0);
-        $pow   = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow   = min($pow, count($units) - 1);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $powInt = (int) $pow;
 
-        return round($bytes / pow(1024, $pow), $precision) . ' ' . $units[$pow];
+        return round($bytes / pow(1024, $powInt), $precision).' '.$units[$powInt];
     }
 }

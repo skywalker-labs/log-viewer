@@ -21,7 +21,6 @@ interface LogLevels
     /**
      * Set the Translator instance.
      *
-     * @param  \Illuminate\Translation\Translator  $translator
      *
      * @return self
      */
@@ -37,11 +36,9 @@ interface LogLevels
     /**
      * Set the selected locale.
      *
-     * @param  string  $locale
-     *
      * @return self
      */
-    public function setLocale($locale);
+    public function setLocale(?string $locale);
 
     /* -----------------------------------------------------------------
      |  Main Methods
@@ -52,8 +49,7 @@ interface LogLevels
      * Get the log levels.
      *
      * @param  bool  $flip
-     *
-     * @return array
+     * @return array<string, string>
      */
     public function lists($flip = false);
 
@@ -61,26 +57,22 @@ interface LogLevels
      * Get translated levels.
      *
      * @param  string|null  $locale
-     *
-     * @return array
+     * @return array<string, string>
      */
     public function names($locale = null);
 
     /**
      * Get PSR log levels.
      *
-     * @param  bool  $flip
-     *
-     * @return array
+     * @return array<string, string>
      */
-    public static function all($flip = false);
+    public static function all(bool $flip = false);
 
     /**
      * Get the translated level.
      *
-     * @param  string       $key
+     * @param  string  $key
      * @param  string|null  $locale
-     *
      * @return string
      */
     public function get($key, $locale = null);

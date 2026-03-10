@@ -1,14 +1,13 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Providers;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Contracts;
 use Skywalker\LogViewer\Providers\DeferredServicesProvider;
 use Skywalker\LogViewer\Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     DeferredServicesProviderTest
@@ -22,7 +21,6 @@ class DeferredServicesProviderTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Providers\DeferredServicesProvider */
     private DeferredServicesProvider $provider;
 
     /* -----------------------------------------------------------------
@@ -65,7 +63,6 @@ class DeferredServicesProviderTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_provides(): void
     {
         $expected = [

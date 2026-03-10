@@ -28,6 +28,7 @@ coverage/
 .settings/
 .buildpath
 .classpath
+*.txt
 
 # Operating Systems
 .DS_Store

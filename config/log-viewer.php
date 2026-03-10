@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Skywalker\LogViewer\Contracts\Utilities\Filesystem;
 
 return [
@@ -37,8 +39,8 @@ return [
      */
 
     'pattern' => [
-        'prefix'    => Filesystem::PATTERN_PREFIX,
-        'date'      => Filesystem::PATTERN_DATE,
+        'prefix' => Filesystem::PATTERN_PREFIX,
+        'date' => Filesystem::PATTERN_DATE,
         'extension' => Filesystem::PATTERN_EXTENSION,
     ],
 
@@ -97,8 +99,8 @@ return [
         'enabled' => true,
 
         'attributes' => [
-            'prefix'     => 'log-viewer',
-            'middleware' => env('LOGVIEWER_MIDDLEWARE') ? explode(',', env('LOGVIEWER_MIDDLEWARE')) : null,
+            'prefix' => 'log-viewer',
+            'middleware' => is_string($middleware = env('LOGVIEWER_MIDDLEWARE')) ? explode(',', $middleware) : null,
         ],
 
         'show' => 'log-viewer::logs.show',
@@ -128,7 +130,7 @@ return [
      */
 
     'download' => [
-        'prefix'    => 'laravel-',
+        'prefix' => 'laravel-',
         'extension' => 'log',
     ],
 
@@ -144,7 +146,7 @@ return [
      */
 
     'menu' => [
-        'filter-route'  => 'log-viewer::logs.filter',
+        'filter-route' => 'log-viewer::logs.filter',
         'icons-enabled' => true,
     ],
 
@@ -160,15 +162,15 @@ return [
      */
 
     'icons' => [
-        'all'       => 'fa fa-fw fa-list',
+        'all' => 'fa fa-fw fa-list',
         'emergency' => 'fa fa-fw fa-bug',
-        'alert'     => 'fa fa-fw fa-bullhorn',
-        'critical'  => 'fa fa-fw fa-heartbeat',
-        'error'     => 'fa fa-fw fa-times-circle',
-        'warning'   => 'fa fa-fw fa-exclamation-triangle',
-        'notice'    => 'fa fa-fw fa-exclamation-circle',
-        'info'      => 'fa fa-fw fa-info-circle',
-        'debug'     => 'fa fa-fw fa-life-ring',
+        'alert' => 'fa fa-fw fa-bullhorn',
+        'critical' => 'fa fa-fw fa-heartbeat',
+        'error' => 'fa fa-fw fa-times-circle',
+        'warning' => 'fa fa-fw fa-exclamation-triangle',
+        'notice' => 'fa fa-fw fa-exclamation-circle',
+        'info' => 'fa fa-fw fa-info-circle',
+        'debug' => 'fa fa-fw fa-life-ring',
     ],
 
     /* -----------------------------------------------------------------
@@ -182,16 +184,16 @@ return [
 
     'colors' => [
         'levels' => [
-            'empty'     => '#D1D1D1',
-            'all'       => '#8A8A8A',
+            'empty' => '#D1D1D1',
+            'all' => '#8A8A8A',
             'emergency' => '#B71C1C',
-            'alert'     => '#D32F2F',
-            'critical'  => '#F44336',
-            'error'     => '#FF5722',
-            'warning'   => '#FF9100',
-            'notice'    => '#4CAF50',
-            'info'      => '#1976D2',
-            'debug'     => '#90CAF9',
+            'alert' => '#D32F2F',
+            'critical' => '#F44336',
+            'error' => '#FF5722',
+            'warning' => '#FF9100',
+            'notice' => '#4CAF50',
+            'info' => '#1976D2',
+            'debug' => '#90CAF9',
         ],
     ],
 
@@ -221,8 +223,8 @@ return [
         'enabled' => true,
         'patterns' => [
             '/[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/' => '****@$1', // Emails
-            '/(?i)(API_KEY|APP_KEY|STRIPE_SECRET|PASSWORD)[=:][^\s&"]+/'   => '$1=********', // Keys
-            '/(?:\d{4}-){3}\d{4}|\d{16}/'                      => '****-****-****-****', // Credit Cards
+            '/(?i)(API_KEY|APP_KEY|STRIPE_SECRET|PASSWORD)[=:][^\s&"]+/' => '$1=********', // Keys
+            '/(?:\d{4}-){3}\d{4}|\d{16}/' => '****-****-****-****', // Credit Cards
         ],
     ],
 
@@ -251,8 +253,8 @@ return [
 
     'webhooks' => [
         'enabled' => env('LOGVIEWER_WEBHOOKS_ENABLED', false),
-        'url'     => env('LOGVIEWER_WEBHOOK_URL'),
-        'levels'  => ['emergency', 'alert', 'critical'],
+        'url' => env('LOGVIEWER_WEBHOOK_URL'),
+        'levels' => ['emergency', 'alert', 'critical'],
     ],
 
     /* -----------------------------------------------------------------
@@ -271,7 +273,7 @@ return [
 
     'footer' => [
         'enabled' => true,
-        'author'  => env('LOGVIEWER_FOOTER_AUTHOR', 'Mradul Sharma'),
+        'author' => env('LOGVIEWER_FOOTER_AUTHOR', 'Mradul Sharma'),
     ],
 
     /* -----------------------------------------------------------------
@@ -286,14 +288,14 @@ return [
     'retention' => [
         'enabled' => env('LOGVIEWER_RETENTION_ENABLED', false),
         'default' => 30, // Default days to keep
-        'levels'  => [
-            'debug'     => 7,
-            'info'      => 14,
-            'notice'    => 14,
-            'warning'   => 30,
-            'error'     => 60,
-            'critical'  => 90,
-            'alert'     => 90,
+        'levels' => [
+            'debug' => 7,
+            'info' => 14,
+            'notice' => 14,
+            'warning' => 30,
+            'error' => 60,
+            'critical' => 90,
+            'alert' => 90,
             'emergency' => 90,
         ],
     ],
@@ -308,7 +310,7 @@ return [
 
     'audit' => [
         'enabled' => env('LOGVIEWER_AUDIT_ENABLED', true),
-        'path'    => storage_path('logs/log-viewer-audit.json'),
+        'path' => storage_path('logs/log-viewer-audit.json'),
     ],
 
     /* -----------------------------------------------------------------
@@ -321,15 +323,15 @@ return [
 
     'channels' => [
         'laravel' => [
-            'name'    => 'Laravel',
+            'name' => 'Laravel',
             'pattern' => '/^\[(?P<datetime>.*?)\] (?P<env>\w+)\.(?P<level>\w+): (?P<header>.*)/m',
         ],
         'nginx_access' => [
-            'name'    => 'Nginx Access',
+            'name' => 'Nginx Access',
             'pattern' => '/^(?P<ip>\S+) \S+ \S+ \[(?P<datetime>.*?)\] "(?P<header>.*?)" (?P<level>\d+) \d+/m',
         ],
         'nginx_error' => [
-            'name'    => 'Nginx Error',
+            'name' => 'Nginx Error',
             'pattern' => '/^(?P<datetime>.*?) \[(?P<level>\w+)\] (?P<ip>\d+)#\d+: \*(?P<cid>\d+) (?P<header>.*)/m',
         ],
     ],

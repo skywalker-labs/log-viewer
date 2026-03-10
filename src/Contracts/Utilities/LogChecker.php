@@ -22,9 +22,12 @@ interface LogChecker
      * @link http://laravel.com/docs/5.4/errors#configuration
      * @link https://github.com/Seldaek/monolog/blob/master/doc/02-handlers-formatters-processors.md#log-to-files-and-syslog
      */
-    const HANDLER_DAILY    = 'daily';
-    const HANDLER_SINGLE   = 'single';
-    const HANDLER_SYSLOG   = 'syslog';
+    const HANDLER_DAILY = 'daily';
+
+    const HANDLER_SINGLE = 'single';
+
+    const HANDLER_SYSLOG = 'syslog';
+
     const HANDLER_ERRORLOG = 'errorlog';
 
     /* -----------------------------------------------------------------
@@ -35,7 +38,6 @@ interface LogChecker
     /**
      * Set the config instance.
      *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
      *
      * @return self
      */
@@ -44,7 +46,6 @@ interface LogChecker
     /**
      * Set the Filesystem instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
      *
      * @return self
      */
@@ -58,7 +59,7 @@ interface LogChecker
     /**
      * Get messages.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function messages();
 
@@ -79,7 +80,7 @@ interface LogChecker
     /**
      * Get the requirements
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function requirements();
 }

@@ -1,11 +1,11 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Commands;
 
-use Skywalker\LogViewer\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Skywalker\LogViewer\Tests\TestCase;
 
 /**
  * Class     StatsCommandTest
@@ -20,7 +20,6 @@ class StatsCommandTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_display_stats(): void
     {
         $this->artisan('log-viewer:stats')

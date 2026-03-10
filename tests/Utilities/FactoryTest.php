@@ -1,13 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Utilities;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Tests\TestCase;
 use Skywalker\LogViewer\Utilities\Factory;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     FactoryTest
@@ -21,7 +20,6 @@ class FactoryTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Contracts\Utilities\Factory */
     private \Skywalker\LogViewer\Contracts\Utilities\Factory $logFactory;
 
     /* -----------------------------------------------------------------
@@ -49,14 +47,12 @@ class FactoryTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(Factory::class, $this->logFactory);
     }
 
     #[Test]
-
     public function it_can_get_filesystem_object(): void
     {
         $expectations = [
@@ -70,7 +66,6 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_levels_object(): void
     {
         $expectations = [
@@ -84,7 +79,6 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_log_entries(): void
     {
         $logEntries = $this->logFactory->entries($date = '2015-01-01');
@@ -95,7 +89,6 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_dates(): void
     {
         $dates = $this->logFactory->dates();
@@ -105,7 +98,6 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_all_logs(): void
     {
         $logs = $this->logFactory->all();
@@ -116,27 +108,24 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_paginate_all_logs(): void
     {
         $logs = $this->logFactory->paginate();
 
         static::assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $logs);
         static::assertSame(30, $logs->perPage());
-        static::assertSame(2,  $logs->total());
-        static::assertSame(1,  $logs->lastPage());
-        static::assertSame(1,  $logs->currentPage());
+        static::assertSame(2, $logs->total());
+        static::assertSame(1, $logs->lastPage());
+        static::assertSame(1, $logs->currentPage());
     }
 
     #[Test]
-
     public function it_can_get_count(): void
     {
         static::assertSame(2, $this->logFactory->count());
     }
 
     #[Test]
-
     public function it_can_can_set_custom_path(): void
     {
         $this->logFactory->setPath(static::fixturePath('custom-path-logs'));
@@ -151,14 +140,12 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_total(): void
     {
         static::assertSame(16, $this->logFactory->total());
     }
 
     #[Test]
-
     public function it_can_get_total_by_level(): void
     {
         foreach (self::$logLevels as $level) {
@@ -167,7 +154,6 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_tree(): void
     {
         $tree = $this->logFactory->tree();
@@ -180,41 +166,39 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_translated_tree(): void
     {
         $this->app->setLocale('fr');
 
         $expected = [
             '2015-01-02' => [
-                'all'       => ['name' => 'Tous', 'count' => 8],
+                'all' => ['name' => 'Tous', 'count' => 8],
                 'emergency' => ['name' => 'Urgence', 'count' => 1],
-                'alert'     => ['name' => 'Alerte', 'count' => 1],
-                'critical'  => ['name' => 'Critique', 'count' => 1],
-                'error'     => ['name' => 'Erreur', 'count' => 1],
-                'warning'   => ['name' => 'Avertissement', 'count' => 1],
-                'notice'    => ['name' => 'Notice', 'count' => 1],
-                'info'      => ['name' => 'Info', 'count' => 1],
-                'debug'     => ['name' => 'Debug', 'count' => 1],
+                'alert' => ['name' => 'Alerte', 'count' => 1],
+                'critical' => ['name' => 'Critique', 'count' => 1],
+                'error' => ['name' => 'Erreur', 'count' => 1],
+                'warning' => ['name' => 'Avertissement', 'count' => 1],
+                'notice' => ['name' => 'Notice', 'count' => 1],
+                'info' => ['name' => 'Info', 'count' => 1],
+                'debug' => ['name' => 'Debug', 'count' => 1],
             ],
             '2015-01-01' => [
-                'all'       => ['name' => 'Tous', 'count' => 8],
+                'all' => ['name' => 'Tous', 'count' => 8],
                 'emergency' => ['name' => 'Urgence', 'count' => 1],
-                'alert'     => ['name' => 'Alerte', 'count' => 1],
-                'critical'  => ['name' => 'Critique', 'count' => 1],
-                'error'     => ['name' => 'Erreur', 'count' => 1],
-                'warning'   => ['name' => 'Avertissement', 'count' => 1],
-                'notice'    => ['name' => 'Notice', 'count' => 1],
-                'info'      => ['name' => 'Info', 'count' => 1],
-                'debug'     => ['name' => 'Debug', 'count' => 1],
-            ]
+                'alert' => ['name' => 'Alerte', 'count' => 1],
+                'critical' => ['name' => 'Critique', 'count' => 1],
+                'error' => ['name' => 'Erreur', 'count' => 1],
+                'warning' => ['name' => 'Avertissement', 'count' => 1],
+                'notice' => ['name' => 'Notice', 'count' => 1],
+                'info' => ['name' => 'Info', 'count' => 1],
+                'debug' => ['name' => 'Debug', 'count' => 1],
+            ],
         ];
 
         static::assertSame($expected, $tree = $this->logFactory->tree(true));
     }
 
     #[Test]
-
     public function it_can_get_menu(): void
     {
         $menu = $this->logFactory->menu();
@@ -227,7 +211,6 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_untranslated_menu(): void
     {
         $menu = $this->logFactory->menu(false);
@@ -240,14 +223,12 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_check_is_not_empty(): void
     {
         static::assertFalse($this->logFactory->isEmpty());
     }
 
     #[Test]
-
     public function it_must_throw_a_filesystem_exception(): void
     {
         $this->expectException(\Skywalker\LogViewer\Exceptions\LogNotFoundException::class);
@@ -256,36 +237,35 @@ class FactoryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_set_and_get_pattern(): void
     {
-        $prefix    = 'laravel-';
-        $date      = '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]';
+        $prefix = 'laravel-';
+        $date = '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]';
         $extension = '.log';
 
         static::assertSame(
-            $prefix . $date . $extension,
+            $prefix.$date.$extension,
             $this->logFactory->getPattern()
         );
 
         $this->logFactory->setPattern($prefix, $date, $extension = '');
 
         static::assertSame(
-            $prefix . $date . $extension,
+            $prefix.$date.$extension,
             $this->logFactory->getPattern()
         );
 
         $this->logFactory->setPattern($prefix = 'laravel-cli-', $date, $extension);
 
         static::assertSame(
-            $prefix . $date . $extension,
+            $prefix.$date.$extension,
             $this->logFactory->getPattern()
         );
 
         $this->logFactory->setPattern($prefix, $date = '[0-9][0-9][0-9][0-9]', $extension);
 
         static::assertSame(
-            $prefix . $date . $extension,
+            $prefix.$date.$extension,
             $this->logFactory->getPattern()
         );
 

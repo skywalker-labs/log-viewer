@@ -1,11 +1,11 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Commands;
 
-use Skywalker\LogViewer\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Skywalker\LogViewer\Tests\TestCase;
 
 /**
  * Class     CheckCommandTest
@@ -20,7 +20,6 @@ class CheckCommandTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_check(): void
     {
         $this->artisan('log-viewer:check')

@@ -18,8 +18,10 @@ interface Filesystem extends Patternable
      | -----------------------------------------------------------------
      */
 
-    const PATTERN_PREFIX    = 'laravel-';
-    const PATTERN_DATE      = '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]';
+    const PATTERN_PREFIX = 'laravel-';
+
+    const PATTERN_DATE = '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]';
+
     const PATTERN_EXTENSION = '.log';
 
     /* -----------------------------------------------------------------
@@ -38,7 +40,6 @@ interface Filesystem extends Patternable
      * Set the log storage path.
      *
      * @param  string  $storagePath
-     *
      * @return $this
      */
     public function setPath($storagePath);
@@ -47,7 +48,6 @@ interface Filesystem extends Patternable
      * Set the log date pattern.
      *
      * @param  string  $datePattern
-     *
      * @return $this
      */
     public function setDatePattern($datePattern);
@@ -56,7 +56,6 @@ interface Filesystem extends Patternable
      * Set the log prefix pattern.
      *
      * @param  string  $prefixPattern
-     *
      * @return $this
      */
     public function setPrefixPattern($prefixPattern);
@@ -65,7 +64,6 @@ interface Filesystem extends Patternable
      * Set the log extension.
      *
      * @param  string  $extension
-     *
      * @return $this
      */
     public function setExtension($extension);
@@ -78,14 +76,14 @@ interface Filesystem extends Patternable
     /**
      * Get all log files.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function all();
 
     /**
      * Get all valid log files.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function logs();
 
@@ -93,8 +91,7 @@ interface Filesystem extends Patternable
      * List the log files (Only dates).
      *
      * @param  bool  $withPaths
-     *
-     * @return array
+     * @return array<int, string>
      */
     public function dates($withPaths = false);
 
@@ -102,7 +99,6 @@ interface Filesystem extends Patternable
      * Read the log.
      *
      * @param  string  $date
-     *
      * @return string
      *
      * @throws \Skywalker\LogViewer\Exceptions\FilesystemException
@@ -110,15 +106,13 @@ interface Filesystem extends Patternable
     public function read($date);
 
     /**
-     * Delete the log.
-     *
-     * @param  string  $date
+     * Delete the log by date.
      *
      * @return bool
      *
      * @throws \Skywalker\LogViewer\Exceptions\FilesystemException
      */
-    public function delete(string $date);
+    public function deleteByDate(string $date);
 
     /**
      * Clear the log files.
@@ -131,7 +125,6 @@ interface Filesystem extends Patternable
      * Get the log file path.
      *
      * @param  string  $date
-     *
      * @return string
      */
     public function path($date);

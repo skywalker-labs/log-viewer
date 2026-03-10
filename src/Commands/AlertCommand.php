@@ -1,8 +1,8 @@
 <?php
 
-namespace Skywalker\LogViewer\Commands;
+declare(strict_types=1);
 
-use Illuminate\Support\Carbon;
+namespace Skywalker\LogViewer\Commands;
 
 /**
  * Class     AlertCommand
@@ -27,8 +27,6 @@ class AlertCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -37,11 +35,12 @@ class AlertCommand extends Command
         $minutes = (int) $this->option('minutes');
         $this->info("Checking for high-severity logs in the last {$minutes} minutes...");
 
-        $date    = now()->format('Y-m-d');
+        $date = now()->format('Y-m-d');
         try {
             $log = $this->logViewer->get($date);
         } catch (\Exception $e) {
             $this->warn("No log file found for today ({$date}).");
+
             return static::SUCCESS;
         }
 
@@ -51,12 +50,14 @@ class AlertCommand extends Command
         $allFoundEntries = [];
 
         foreach ($severities as $level) {
-            $entries = $log->entries($level)->filter(function ($entry) use ($threshold) {
+            /** @var \Skywalker\LogViewer\Entities\LogEntryCollection $entries */
+            $entries = $log->entries($level)->filter(function (\Skywalker\LogViewer\Entities\LogEntry $entry) use ($threshold) {
                 return $entry->datetime->gt($threshold);
             });
 
             if ($entries->isNotEmpty()) {
-                $this->error("Found " . $entries->count() . " " . strtoupper($level) . " entries!");
+                $this->error('Found '.$entries->count().' '.strtoupper($level).' entries!');
+                /** @var \Skywalker\LogViewer\Entities\LogEntry $entry */
                 foreach ($entries as $entry) {
                     $this->line("  [{$entry->datetime}] - {$entry->header}");
                     $allFoundEntries[] = $entry;
@@ -66,10 +67,10 @@ class AlertCommand extends Command
         }
 
         if ($foundCount === 0) {
-            $this->info("No high-severity logs found. Everything looks good.");
+            $this->info('No high-severity logs found. Everything looks good.');
         } else {
             $this->warn("Total high-severity entries found: {$foundCount}");
-            $this->notifyWebhooks($allFoundEntries ?? []);
+            $this->notifyWebhooks($allFoundEntries);
         }
 
         return static::SUCCESS;
@@ -77,24 +78,32 @@ class AlertCommand extends Command
 
     /**
      * Notify webhooks about the found entries.
-     * 
-     * @param array $entries
+     *
+     * @param  array<int, \Skywalker\LogViewer\Entities\LogEntry>  $entries
      */
-    protected function notifyWebhooks(array $entries)
+    protected function notifyWebhooks(array $entries): void
     {
         if (! config('log-viewer.webhooks.enabled') || ! $url = config('log-viewer.webhooks.url')) {
             return;
         }
 
-        if (empty($entries)) return;
+        if (empty($entries)) {
+            return;
+        }
 
-        $message = "*LogViewer Alert!* Found " . count($entries) . " high-severity entries in the last " . $this->option('minutes') . " minutes.\n";
+        $minutes = (int) $this->option('minutes');
+        $message = '*LogViewer Alert!* Found '.count($entries).' high-severity entries in the last '.$minutes." minutes.\n";
         foreach (array_slice($entries, 0, 10) as $entry) {
-            $message .= "> [{$entry->datetime}] *" . strtoupper($entry->level) . "*: {$entry->header}\n";
+            $message .= "> [{$entry->datetime}] *".strtoupper($entry->level)."*: {$entry->header}\n";
         }
 
         if (count($entries) > 10) {
-            $message .= "... and " . (count($entries) - 10) . " more.";
+            $message .= '... and '.(count($entries) - 10).' more.';
+        }
+
+        $url = config('log-viewer.webhooks.url');
+        if (! is_string($url)) {
+            return;
         }
 
         try {
@@ -102,9 +111,9 @@ class AlertCommand extends Command
                 'text' => $message, // Slack
                 'content' => $message, // Discord
             ]);
-            $this->info("Webhook notification sent successfully.");
+            $this->info('Webhook notification sent successfully.');
         } catch (\Exception $e) {
-            $this->error("Failed to send webhook notification: " . $e->getMessage());
+            $this->error('Failed to send webhook notification: '.$e->getMessage());
         }
     }
 }

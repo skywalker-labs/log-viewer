@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Commands;
 
@@ -24,7 +24,7 @@ class PublishCommand extends Command
      *
      * @var string
      */
-    protected $name      = 'log-viewer:publish';
+    protected $name = 'log-viewer:publish';
 
     /**
      * The console command description.
@@ -71,11 +71,11 @@ class PublishCommand extends Command
     /**
      * Get the console command options.
      *
-     * @return array
+     * @return array<int, array<int, mixed>>
      *
      * @codeCoverageIgnore
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['tag', 't', InputOption::VALUE_OPTIONAL, 'One or many tags that have assets you want to publish.', ''],

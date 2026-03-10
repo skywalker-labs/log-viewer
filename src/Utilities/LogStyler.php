@@ -1,12 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Utilities;
 
-use Skywalker\LogViewer\Contracts\Utilities\LogStyler as LogStylerContract;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Support\HtmlString;
+use Skywalker\LogViewer\Contracts\Utilities\LogStyler as LogStylerContract;
 
 /**
  * Class     LogStyler
@@ -22,8 +22,6 @@ class LogStyler implements LogStylerContract
 
     /**
      * The config repository instance.
-     *
-     * @var \Illuminate\Contracts\Config\Repository
      */
     protected ConfigContract $config;
 
@@ -34,8 +32,6 @@ class LogStyler implements LogStylerContract
 
     /**
      * Create a new instance.
-     *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
      */
     public function __construct(ConfigContract $config)
     {
@@ -51,8 +47,7 @@ class LogStyler implements LogStylerContract
      * Get config.
      *
      * @param  string  $key
-     * @param  mixed   $default
-     *
+     * @param  mixed  $default
      * @return mixed
      */
     private function get($key, $default = null)
@@ -67,41 +62,43 @@ class LogStyler implements LogStylerContract
 
     /**
      * Make level icon.
-     *
-     * @param  string       $level
-     * @param  string|null  $default
-     *
-     * @return \Illuminate\Support\HtmlString
      */
-    public function icon($level, $default = null)
+    public function icon(string $level, ?string $default = null): HtmlString
     {
-        return new HtmlString(
-            '<i class="' . $this->get("icons.$level", $default) . '"></i>'
-        );
+        $iconClass = $this->get("icons.$level", $default);
+
+        return new HtmlString('<i class="'.(is_string($iconClass) ? $iconClass : '').'"></i>');
     }
 
     /**
      * Get level color.
      *
-     * @param  string       $level
+     * @param  string  $level
      * @param  string|null  $default
-     *
      * @return string
      */
     public function color($level, $default = null)
     {
-        return $this->get("colors.levels.$level", $default);
+        $color = $this->get("colors.levels.$level", $default);
+
+        return is_string($color) ? $color : '';
     }
 
     /**
      * Get strings to highlight.
      *
-     * @param  array  $default
-     *
-     * @return array
+     * @param  array<int, string>  $default
+     * @return array<int, string>
      */
-    public function toHighlight(array $default = [])
+    public function toHighlight(array $default = []): array
     {
-        return $this->get('highlight', $default);
+        $highlight = $this->get('highlight', $default);
+        if (! is_array($highlight)) {
+            return [];
+        }
+        /** @var array<int, string> $strings */
+        $strings = array_values(array_filter($highlight, 'is_string'));
+
+        return $strings;
     }
 }

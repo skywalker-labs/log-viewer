@@ -1,11 +1,10 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests;
 
 use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     RoutesTest
@@ -20,7 +19,6 @@ class RoutesTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_see_dashboard_page(): void
     {
         $this->get(route('log-viewer::dashboard'))
@@ -30,7 +28,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_see_logs_page(): void
     {
         $this->get(route('log-viewer::logs.list'))
@@ -39,7 +36,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_show_a_log_page(): void
     {
         $date = '2015-01-01';
@@ -52,7 +48,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_see_a_filtered_log_entries_page(): void
     {
         $date = '2015-01-01';
@@ -65,7 +60,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_search_logs_page(): void
     {
         $date = '2015-01-01';
@@ -78,7 +72,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_download_a_log_file(): void
     {
         $date = '2023-01-01';
@@ -89,7 +82,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_delete_a_log_file(): void
     {
         $date = date('Y-m-d');
@@ -101,12 +93,11 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_store_a_note(): void
     {
         $this->post(route('log-viewer::notes.store'), [
             'hash' => 'test-hash',
-            'note' => 'This is a test note'
+            'note' => 'This is a test note',
         ], ['HTTP_X-Requested-With' => 'XMLHttpRequest'])
             ->assertSuccessful()
             ->assertJson(['success' => true]);
@@ -115,12 +106,11 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_save_a_search(): void
     {
         $this->post(route('log-viewer::searches.save'), [
             'label' => 'Test Search',
-            'query' => 'level:error'
+            'query' => 'level:error',
         ])
             ->assertSuccessful()
             ->assertJson(['success' => true]);
@@ -129,14 +119,13 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_save_notification_settings(): void
     {
         $this->post(route('log-viewer::notifications.save'), [
-            'slack_webhook'   => 'https://hooks.slack.com/services/test',
+            'slack_webhook' => 'https://hooks.slack.com/services/test',
             'discord_webhook' => 'https://discord.com/api/webhooks/test',
-            'email_alerts'    => 'admin@example.com',
-            'alert_level'     => 'critical'
+            'email_alerts' => 'admin@example.com',
+            'alert_level' => 'critical',
         ])
             ->assertSuccessful()
             ->assertJson(['success' => true]);
@@ -145,7 +134,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_cleanup_logs(): void
     {
         $this->post(route('log-viewer::cleanup-logs'), [], ['HTTP_X-Requested-With' => 'XMLHttpRequest'])
@@ -154,7 +142,6 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_explain_error(): void
     {
         $this->get(route('log-viewer::ai-explain', ['message' => 'Class "Missing" not found']))
@@ -163,20 +150,18 @@ class RoutesTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_push_to_tracker(): void
     {
         $this->post(route('log-viewer::push-to-tracker'), [
-            'header'  => 'Test Error',
-            'type'    => 'jira',
-            'summary' => 'This is a test summary'
+            'header' => 'Test Error',
+            'type' => 'jira',
+            'summary' => 'This is a test summary',
         ])
             ->assertSuccessful()
             ->assertJson(['success' => true]);
     }
 
     #[Test]
-
     public function it_must_throw_log_not_found_exception_on_show(): void
     {
         $response = $this->get(route('log-viewer::logs.show', ['0000-00-00']));

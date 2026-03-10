@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tables;
 
@@ -19,21 +19,20 @@ abstract class AbstractTable implements TableContract
      | -----------------------------------------------------------------
      */
 
+    /** @var array<int, mixed> */
     private array $header = [];
 
-    /** @var array  */
+    /** @var array<string|int, mixed> */
     private array $rows = [];
 
-    /** @var array  */
+    /** @var array<string, mixed> */
     private array $footer = [];
 
-    /** @var \Skywalker\LogViewer\Contracts\Utilities\LogLevels */
     protected LogLevelsContract $levels;
 
-    /** @var string|null */
     protected ?string $locale;
 
-    /** @var array */
+    /** @var array<string, mixed> */
     private array $data = [];
 
     /* -----------------------------------------------------------------
@@ -44,14 +43,13 @@ abstract class AbstractTable implements TableContract
     /**
      * Create a table instance.
      *
-     * @param  array                                               $data
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogLevels  $levels
-     * @param  string|null                                         $locale
+     * @param  array<string, mixed>  $data
      */
-    public function __construct(array $data, LogLevelsContract $levels, $locale = null)
+    public function __construct(array $data, LogLevelsContract $levels, ?string $locale = null)
     {
         $this->setLevels($levels);
-        $this->setLocale(is_null($locale) ? config('log-viewer.locale') : $locale);
+        $localeConfig = config('log-viewer.locale');
+        $this->setLocale(is_null($locale) ? (is_string($localeConfig) ? $localeConfig : null) : $locale);
         $this->setData($data);
         $this->init();
     }
@@ -64,7 +62,6 @@ abstract class AbstractTable implements TableContract
     /**
      * Set LogLevels instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogLevels  $levels
      *
      * @return $this
      */
@@ -78,11 +75,9 @@ abstract class AbstractTable implements TableContract
     /**
      * Set table locale.
      *
-     * @param  string|null  $locale
-     *
      * @return $this
      */
-    protected function setLocale($locale)
+    protected function setLocale(?string $locale)
     {
         if (is_null($locale) || $locale === 'auto') {
             $locale = app()->getLocale();
@@ -96,7 +91,7 @@ abstract class AbstractTable implements TableContract
     /**
      * Get table header.
      *
-     * @return array
+     * @return array<int, mixed>
      */
     public function header()
     {
@@ -106,7 +101,7 @@ abstract class AbstractTable implements TableContract
     /**
      * Get table rows.
      *
-     * @return array
+     * @return array<string|int, mixed>
      */
     public function rows()
     {
@@ -116,7 +111,7 @@ abstract class AbstractTable implements TableContract
     /**
      * Get table footer.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function footer()
     {
@@ -126,7 +121,7 @@ abstract class AbstractTable implements TableContract
     /**
      * Get raw data.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function data()
     {
@@ -136,8 +131,7 @@ abstract class AbstractTable implements TableContract
     /**
      * Set table data.
      *
-     * @param  array  $data
-     *
+     * @param  array<string, mixed>  $data
      * @return $this
      */
     private function setData(array $data)
@@ -155,37 +149,34 @@ abstract class AbstractTable implements TableContract
     /**
      * Prepare the table.
      */
-    private function init()
+    private function init(): void
     {
         $this->header = $this->prepareHeader($this->data);
-        $this->rows   = $this->prepareRows($this->data);
+        $this->rows = $this->prepareRows($this->data);
         $this->footer = $this->prepareFooter($this->data);
     }
 
     /**
      * Prepare table header.
      *
-     * @param  array  $data
-     *
-     * @return array
+     * @param  array<string, mixed>  $data
+     * @return array<int, mixed>
      */
     abstract protected function prepareHeader(array $data);
 
     /**
      * Prepare table rows.
      *
-     * @param  array  $data
-     *
-     * @return array
+     * @param  array<string, mixed>  $data
+     * @return array<string|int, mixed>
      */
     abstract protected function prepareRows(array $data);
 
     /**
      * Prepare table footer.
      *
-     * @param  array  $data
-     *
-     * @return array
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
      */
     abstract protected function prepareFooter(array $data);
 
@@ -198,7 +189,6 @@ abstract class AbstractTable implements TableContract
      * Get log level color.
      *
      * @param  string  $level
-     *
      * @return string
      */
     protected function color($level)

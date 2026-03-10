@@ -1,12 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Utilities;
 
+use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
 use Skywalker\LogViewer\Contracts\Utilities\LogChecker as LogCheckerContract;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
 
 /**
  * Class     LogChecker
@@ -22,45 +22,30 @@ class LogChecker implements LogCheckerContract
 
     /**
      * The config repository instance.
-     *
-     * @var \Illuminate\Contracts\Config\Repository
      */
     private ConfigContract $config;
 
     /**
      * The filesystem instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\Filesystem
      */
     private FilesystemContract $filesystem;
 
     /**
      * Log handler mode.
-     *
-     * @var string
      */
     protected string $handler = '';
 
     /**
      * The check status.
-     *
-     * @var bool
      */
     private bool $status = true;
 
     /**
      * The check messages.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     private array $messages;
-
-    /**
-     * Log files statuses.
-     *
-     * @var array
-     */
-    private array $files = [];
 
     /* -----------------------------------------------------------------
      |  Constructor
@@ -69,9 +54,6 @@ class LogChecker implements LogCheckerContract
 
     /**
      * LogChecker constructor.
-     *
-     * @param  \Illuminate\Contracts\Config\Repository              $config
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
      */
     public function __construct(ConfigContract $config, FilesystemContract $filesystem)
     {
@@ -88,7 +70,6 @@ class LogChecker implements LogCheckerContract
     /**
      * Set the config instance.
      *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
      *
      * @return self
      */
@@ -102,7 +83,6 @@ class LogChecker implements LogCheckerContract
     /**
      * Set the Filesystem instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
      *
      * @return self
      */
@@ -117,7 +97,6 @@ class LogChecker implements LogCheckerContract
      * Set the log handler mode.
      *
      * @param  string  $handler
-     *
      * @return self
      */
     protected function setHandler($handler)
@@ -135,7 +114,7 @@ class LogChecker implements LogCheckerContract
     /**
      * Get messages.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function messages()
     {
@@ -169,20 +148,20 @@ class LogChecker implements LogCheckerContract
     /**
      * Get the requirements.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function requirements()
     {
         $this->refresh();
 
         return $this->isDaily() ? [
-            'status'  => 'success',
-            'header'  => 'Application requirements fulfilled.',
+            'status' => 'success',
+            'header' => 'Application requirements fulfilled.',
             'message' => 'Are you ready to rock ?',
         ] : [
-            'status'  => 'failed',
-            'header'  => 'Application requirements failed.',
-            'message' => $this->messages['handler']
+            'status' => 'failed',
+            'header' => 'Application requirements failed.',
+            'message' => $this->messages['handler'],
         ];
     }
 
@@ -205,7 +184,6 @@ class LogChecker implements LogCheckerContract
      * Is the handler is the same as the application log handler.
      *
      * @param  string  $handler
-     *
      * @return bool
      */
     private function isSameHandler($handler)
@@ -225,14 +203,13 @@ class LogChecker implements LogCheckerContract
      */
     private function refresh()
     {
-        $this->setHandler($this->config->get('logging.default', 'stack'));
+        $handler = $this->config->get('logging.default', 'stack');
+        $this->setHandler(is_string($handler) ? $handler : '');
 
         $this->messages = [
             'handler' => '',
-            'files'   => [],
+            'files' => [],
         ];
-        $this->files    = [];
-
         $this->checkHandler();
         $this->checkLogFiles();
 
@@ -242,9 +219,11 @@ class LogChecker implements LogCheckerContract
     /**
      * Check the handler mode.
      */
-    private function checkHandler()
+    private function checkHandler(): void
     {
-        if ($this->isDaily()) return;
+        if ($this->isDaily()) {
+            return;
+        }
 
         $this->messages['handler'] = 'You should set the log handler to `daily` mode. Please check the LogViewer wiki page (Requirements) for more details.';
     }
@@ -252,7 +231,7 @@ class LogChecker implements LogCheckerContract
     /**
      * Check all log files.
      */
-    private function checkLogFiles()
+    private function checkLogFiles(): void
     {
         foreach ($this->filesystem->all() as $path) {
             $this->checkLogFile($path);
@@ -264,31 +243,33 @@ class LogChecker implements LogCheckerContract
      *
      * @param  string  $path
      */
-    private function checkLogFile($path)
+    private function checkLogFile($path): void
     {
-        $status   = true;
+        $status = true;
         $filename = basename($path);
-        $message  = "The log file [$filename] is valid.";
-        $pattern  = $this->filesystem->getPattern();
+        $message = "The log file [$filename] is valid.";
+        $pattern = $this->filesystem->getPattern();
 
         if ($this->isSingleLogFile($filename)) {
             $this->status = $status = false;
-            $this->messages['files'][$filename] = $message =
-                "You have a single log file in your application, you should split the [$filename] into separate log files.";
+            if (is_array($this->messages['files'])) {
+                $this->messages['files'][$filename] = $message =
+                    "You have a single log file in your application, you should split the [$filename] into separate log files.";
+            }
         } elseif ($this->isInvalidLogPattern($filename, $pattern)) {
             $this->status = $status = false;
-            $this->messages['files'][$filename] = $message =
-                "The log file [$filename] has an invalid date, the format must be like {$pattern}.";
+            if (is_array($this->messages['files'])) {
+                $this->messages['files'][$filename] = $message =
+                    "The log file [$filename] has an invalid date, the format must be like {$pattern}.";
+            }
         }
 
-        $this->files[$filename] = compact('filename', 'status', 'message', 'path');
     }
 
     /**
      * Check if it's not a single log file.
      *
      * @param  string  $file
-     *
      * @return bool
      */
     private function isSingleLogFile($file)
@@ -301,7 +282,6 @@ class LogChecker implements LogCheckerContract
      *
      * @param  string  $file
      * @param  string  $pattern
-     *
      * @return bool
      */
     private function isInvalidLogPattern($file, $pattern)

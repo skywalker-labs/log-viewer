@@ -1,18 +1,20 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Entities;
 
-use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
-use Skywalker\LogViewer\Exceptions\LogNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\LazyCollection;
+use Skywalker\LogViewer\Contracts\Utilities\Filesystem as FilesystemContract;
+use Skywalker\LogViewer\Exceptions\LogNotFoundException;
 
 /**
  * Class     LogCollection
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
+ *
+ * @extends LazyCollection<string, Log>
  */
 class LogCollection extends LazyCollection
 {
@@ -21,7 +23,6 @@ class LogCollection extends LazyCollection
      | -----------------------------------------------------------------
      */
 
-    /** @var \Skywalker\LogViewer\Contracts\Utilities\Filesystem */
     private FilesystemContract $filesystem;
 
     /* -----------------------------------------------------------------
@@ -32,20 +33,21 @@ class LogCollection extends LazyCollection
     /**
      * LogCollection constructor.
      *
-     * @param  mixed  $source
+     * @param  \Closure|array<string, Log>|iterable<string, Log>|null  $source
      */
     public function __construct($source = null)
     {
         $this->setFilesystem(app(FilesystemContract::class));
 
-        if (is_null($source))
+        if (is_null($source)) {
             $source = function () {
                 foreach ($this->filesystem->dates(true) as $date => $path) {
                     // Use path to read content directly, avoiding getLogPath($date) failure for virtual dates
-                    $content = file_get_contents($path);
-                    yield $date => Log::make($date, $path, $content);
+                    $content = file_get_contents((string) $path);
+                    yield (string) $date => Log::make((string) $date, (string) $path, is_string($content) ? $content : '');
                 }
             };
+        }
 
         parent::__construct($source);
     }
@@ -58,7 +60,6 @@ class LogCollection extends LazyCollection
     /**
      * Set the filesystem instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
      *
      * @return \Skywalker\LogViewer\Entities\LogCollection
      */
@@ -77,35 +78,41 @@ class LogCollection extends LazyCollection
     /**
      * Get a log.
      *
-     * @param  string      $date
+     * @param  string  $date
      * @param  mixed|null  $default
-     *
-     * @return \Skywalker\LogViewer\Entities\Log
+     * @return \Skywalker\LogViewer\Entities\Log|null
      *
      * @throws \Skywalker\LogViewer\Exceptions\LogNotFoundException
      */
     public function get($date, $default = null)
     {
-        if (! $this->has($date))
+        if (! $this->has($date)) {
             throw LogNotFoundException::make($date);
+        }
 
-        return parent::get($date, $default);
+        /** @var Log|null $log */
+        $log = parent::get($date, $default);
+
+        return $log;
     }
 
     /**
      * Paginate logs.
      *
      * @param  int  $perPage
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, \Skywalker\LogViewer\Entities\Log>
      */
     public function paginate($perPage = 30)
     {
         $page = request()->get('page', 1);
+        $page = is_numeric($page) ? (int) $page : 1;
         $path = request()->url();
 
+        /** @var array<int, Log> $items */
+        $items = array_values($this->forPage($page, $perPage)->all());
+
         return new LengthAwarePaginator(
-            $this->forPage($page, $perPage),
+            $items,
             $this->count(),
             $perPage,
             $page,
@@ -119,32 +126,35 @@ class LogCollection extends LazyCollection
      * @see get()
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     public function log($date)
     {
-        return $this->get($date);
-    }
+        /** @var Log $log */
+        $log = $this->get($date);
 
+        return $log;
+    }
 
     /**
      * Get log entries.
      *
      * @param  string  $date
      * @param  string  $level
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     public function entries($date, $level = 'all')
     {
-        return $this->get($date)->entries($level);
+        /** @var Log $log */
+        $log = $this->get($date);
+
+        return $log->entries($level);
     }
 
     /**
      * Get logs statistics.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function stats()
     {
@@ -161,18 +171,20 @@ class LogCollection extends LazyCollection
     /**
      * List the log files (dates).
      *
-     * @return array
+     * @return array<int, string>
      */
     public function dates()
     {
-        return $this->keys()->toArray();
+        /** @var array<int, string> $keys */
+        $keys = $this->keys()->toArray();
+
+        return $keys;
     }
 
     /**
      * Get entries total.
      *
      * @param  string  $level
-     *
      * @return int
      */
     public function total($level = 'all')
@@ -186,8 +198,7 @@ class LogCollection extends LazyCollection
      * Get logs tree.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function tree($trans = false)
     {
@@ -205,8 +216,7 @@ class LogCollection extends LazyCollection
      * Get logs menu.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function menu($trans = true)
     {

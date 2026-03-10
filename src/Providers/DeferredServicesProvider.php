@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Providers;
 
@@ -50,7 +50,7 @@ class DeferredServicesProvider extends ServiceProvider implements DeferrableProv
     /**
      * Get the services provided by the provider.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function provides(): array
     {
@@ -113,14 +113,19 @@ class DeferredServicesProvider extends ServiceProvider implements DeferrableProv
     private function registerFilesystem(): void
     {
         $this->singleton(FilesystemContract::class, function ($app) {
-            /** @var  \Illuminate\Config\Repository  $config */
-            $config     = $app['config'];
-            $filesystem = new Utilities\Filesystem($app['files'], $config->get('log-viewer.storage-path'));
+            /** @var \Illuminate\Config\Repository $config */
+            $config = $app['config'];
+            $storagePath = $config->get('log-viewer.storage-path');
+            $filesystem = new Utilities\Filesystem(is_string($storagePath) ? $storagePath : '');
+
+            $prefix = $config->get('log-viewer.pattern.prefix', FilesystemContract::PATTERN_PREFIX);
+            $date = $config->get('log-viewer.pattern.date', FilesystemContract::PATTERN_DATE);
+            $extension = $config->get('log-viewer.pattern.extension', FilesystemContract::PATTERN_EXTENSION);
 
             return $filesystem->setPattern(
-                $config->get('log-viewer.pattern.prefix', FilesystemContract::PATTERN_PREFIX),
-                $config->get('log-viewer.pattern.date', FilesystemContract::PATTERN_DATE),
-                $config->get('log-viewer.pattern.extension', FilesystemContract::PATTERN_EXTENSION)
+                is_string($prefix) ? $prefix : FilesystemContract::PATTERN_PREFIX,
+                is_string($date) ? $date : FilesystemContract::PATTERN_DATE,
+                is_string($extension) ? $extension : FilesystemContract::PATTERN_EXTENSION
             );
         });
     }

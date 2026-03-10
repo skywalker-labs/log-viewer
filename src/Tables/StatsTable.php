@@ -1,11 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tables;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Skywalker\LogViewer\Contracts\Utilities\LogLevels as LogLevelsContract;
-use Illuminate\Support\{Arr, Collection};
 
 /**
  * Class     StatsTable
@@ -22,15 +23,12 @@ class StatsTable extends AbstractTable
     /**
      * Make a stats table instance.
      *
-     * @param  array                                               $data
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogLevels  $levels
-     * @param  string|null                                         $locale
-     *
-     * @return $this
+     * @param  array<string, mixed>  $data
+     * @return static
      */
-    public static function make(array $data, LogLevelsContract $levels, $locale = null)
+    public static function make(array $data, LogLevelsContract $levels, ?string $locale = null): self
     {
-        return new static($data, $levels, $locale);
+        return new self($data, $levels, $locale);
     }
 
     /* -----------------------------------------------------------------
@@ -41,34 +39,38 @@ class StatsTable extends AbstractTable
     /**
      * Prepare table header.
      *
-     * @param  array  $data
-     *
-     * @return array
+     * @param  array<string, mixed>  $data
+     * @return array<int, mixed>
      */
-    protected function prepareHeader(array $data)
+    protected function prepareHeader(array $data): array
     {
-        return array_merge_recursive(
+        /** @var array<int, mixed> $header */
+        $header = array_merge(
             [
                 'date' => __('Date'),
-                'all'  => __('All'),
+                'all' => __('All'),
             ],
             $this->levels->names($this->locale)
         );
+
+        return $header;
     }
 
     /**
      * Prepare table rows.
      *
-     * @param  array  $data
-     *
-     * @return array
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
      */
-    protected function prepareRows(array $data)
+    protected function prepareRows(array $data): array
     {
+        /** @var array<string, mixed> $rows */
         $rows = [];
 
         foreach ($data as $date => $levels) {
-            $rows[$date] = array_merge(compact('date'), $levels);
+            if (is_string($date) && is_array($levels)) {
+                $rows[$date] = array_merge(['date' => $date], $levels);
+            }
         }
 
         return $rows;
@@ -77,20 +79,25 @@ class StatsTable extends AbstractTable
     /**
      * Prepare table footer.
      *
-     * @param  array  $data
-     *
-     * @return array
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
      */
-    protected function prepareFooter(array $data)
+    protected function prepareFooter(array $data): array
     {
+        /** @var array<string, int> $footer */
         $footer = [];
 
-        foreach ($data as $date => $levels) {
+        foreach ($data as $levels) {
+            if (! is_array($levels)) {
+                continue;
+            }
             foreach ($levels as $level => $count) {
+                if (! is_string($level) || ! is_int($count)) {
+                    continue;
+                }
                 if (! isset($footer[$level])) {
                     $footer[$level] = 0;
                 }
-
                 $footer[$level] += $count;
             }
         }
@@ -102,8 +109,7 @@ class StatsTable extends AbstractTable
      * Get totals.
      *
      * @param  string|null  $locale
-     *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<string, array<string, mixed>>
      */
     public function totals($locale = null)
     {
@@ -111,9 +117,9 @@ class StatsTable extends AbstractTable
 
         foreach (Arr::except($this->footer(), 'all') as $level => $count) {
             $totals->put($level, [
-                'label'     => \log_levels()->get($level, $locale),
-                'value'     => $count,
-                'color'     => $this->color($level),
+                'label' => \log_levels()->get($level, $locale),
+                'value' => $count,
+                'color' => $this->color($level),
                 'highlight' => $this->color($level),
             ]);
         }
@@ -125,7 +131,6 @@ class StatsTable extends AbstractTable
      * Get json totals data.
      *
      * @param  string|null  $locale
-     *
      * @return string
      */
     public function totalsJson($locale = null)

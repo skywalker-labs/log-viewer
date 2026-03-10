@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Skywalker\LogViewer\Contracts;
 
 if (! function_exists('log_viewer')) {

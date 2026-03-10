@@ -1,16 +1,9 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests;
 
-use Skywalker\LogViewer\Contracts\Utilities\Filesystem;
-use Skywalker\LogViewer\Entities\Log;
-use Skywalker\LogViewer\Entities\LogEntry;
-use Skywalker\LogViewer\Entities\LogEntryCollection;
-use Skywalker\LogViewer\Helpers\LogParser;
-use Skywalker\LogViewer\LogViewerServiceProvider;
-use Skywalker\LogViewer\Providers\DeferredServicesProvider;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Arr;
@@ -18,6 +11,13 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 use PHPUnit\Framework\Constraint\RegularExpression;
 use Psr\Log\LogLevel;
 use ReflectionClass;
+use Skywalker\LogViewer\Contracts\Utilities\Filesystem;
+use Skywalker\LogViewer\Entities\Log;
+use Skywalker\LogViewer\Entities\LogEntry;
+use Skywalker\LogViewer\Entities\LogEntryCollection;
+use Skywalker\LogViewer\Helpers\LogParser;
+use Skywalker\LogViewer\LogViewerServiceProvider;
+use Skywalker\LogViewer\Providers\DeferredServicesProvider;
 
 /**
  * Class     TestCase
@@ -33,7 +33,7 @@ abstract class TestCase extends BaseTestCase
 
     protected static array $logLevels = [];
 
-    protected static array $locales   = [
+    protected static array $locales = [
         'ar',
         'bg',
         'bn',
@@ -43,6 +43,7 @@ abstract class TestCase extends BaseTestCase
         'et',
         'fa',
         'fr',
+        'he',
         'hu',
         'hy',
         'id',
@@ -60,8 +61,9 @@ abstract class TestCase extends BaseTestCase
         'th',
         'tr',
         'uk',
+        'uz',
         'zh-TW',
-        'zh'
+        'zh',
     ];
 
     /* -----------------------------------------------------------------
@@ -113,10 +115,10 @@ abstract class TestCase extends BaseTestCase
         ];
 
         $path = $this->app['config']->get('log-viewer.storage-path');
-        $defaultPath = realpath(__DIR__ . '/fixtures/logs');
+        $defaultPath = realpath(__DIR__.'/fixtures/logs');
 
         if ($path === $defaultPath) {
-            $allLogs = glob($path . '/*.log');
+            $allLogs = glob($path.'/*.log');
             foreach ($allLogs as $log) {
                 if (! in_array(basename($log), $fixtures)) {
                     @unlink($log);
@@ -131,8 +133,6 @@ abstract class TestCase extends BaseTestCase
      * Get package providers.
      *
      * @param  \Illuminate\Foundation\Application  $app
-     *
-     * @return array
      */
     protected function getPackageProviders($app): array
     {
@@ -149,12 +149,12 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $app['path.storage'] = realpath(__DIR__ . '/fixtures');
+        $app['path.storage'] = realpath(__DIR__.'/fixtures');
 
         /** @var \Illuminate\Config\Repository $config */
         $config = $app['config'];
 
-        $config->set('log-viewer.storage-path', $app['path.storage'] . DIRECTORY_SEPARATOR . 'logs');
+        $config->set('log-viewer.storage-path', $app['path.storage'].DIRECTORY_SEPARATOR.'logs');
     }
 
     /* -----------------------------------------------------------------
@@ -166,7 +166,7 @@ abstract class TestCase extends BaseTestCase
      * Asserts that a string is a valid JSON string.
      *
      * @param  \Illuminate\Contracts\Support\Jsonable|mixed  $object
-     * @param  string                                        $message
+     * @param  string  $message
      */
     public static function assertJsonObject($object, $message = '')
     {
@@ -180,8 +180,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Assert Log object.
      |
-     * @param  \Skywalker\LogViewer\Entities\Log  $log
-     * @param  string                             $date
+     * @param  string  $date
      */
     protected static function assertLog(Log $log, $date)
     {
@@ -192,8 +191,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Assert Log entries object.
      |
-     * @param  string                                            $date
-     * @param  \Skywalker\LogViewer\Entities\LogEntryCollection  $entries
+     * @param  string  $date
      */
     protected static function assertLogEntries($date, LogEntryCollection $entries)
     {
@@ -205,8 +203,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Assert log entry object.
      |
-     * @param  string                                  $date
-     * @param  \Skywalker\LogViewer\Entities\LogEntry  $entry
+     * @param  string  $date
      */
     protected static function assertLogEntry($date, LogEntry $entry)
     {
@@ -232,8 +229,6 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * Assert levels.
-     *
-     * @param  array  $levels
      */
     protected static function assertLevels(array $levels)
     {
@@ -249,7 +244,7 @@ abstract class TestCase extends BaseTestCase
      * Assert translated level.
      *
      * @param  string  $locale
-     * @param  array   $levels
+     * @param  array  $levels
      */
     protected function assertTranslatedLevels($locale, $levels)
     {
@@ -275,7 +270,6 @@ abstract class TestCase extends BaseTestCase
     /**
      * Assert dates.
      *
-     * @param  array   $dates
      * @param  string  $message
      */
     public static function assertDates(array $dates, $message = '')
@@ -293,16 +287,16 @@ abstract class TestCase extends BaseTestCase
      */
     public static function assertDate($date, $message = '')
     {
-        static::assertMatchesRegExp('/' . LogParser::REGEX_DATE_PATTERN . '/', $date, $message);
+        static::assertMatchesRegExp('/'.LogParser::REGEX_DATE_PATTERN.'/', $date, $message);
     }
 
     /**
      * Assert Menu item.
      *
-     * @param  array   $item
+     * @param  array  $item
      * @param  string  $name
-     * @param  int     $count
-     * @param  bool    $withIcons
+     * @param  int  $count
+     * @param  bool  $withIcons
      */
     protected static function assertMenuItem($item, $name, $count, $withIcons = true)
     {
@@ -340,7 +334,6 @@ abstract class TestCase extends BaseTestCase
      * @param  string  $pattern
      * @param  string  $string
      * @param  string  $message
-     *
      */
     public static function assertMatchesRegExp($pattern, $string, $message = '')
     {
@@ -396,7 +389,6 @@ abstract class TestCase extends BaseTestCase
      * Get log path.
      *
      * @param  string  $date
-     *
      * @return string
      */
     public function getLogPath($date)
@@ -407,15 +399,14 @@ abstract class TestCase extends BaseTestCase
     protected static function fixturePath(?string $path = null): string
     {
         return is_null($path)
-            ? __DIR__ . '/fixtures'
-            : __DIR__ . '/fixtures/' . $path;
+            ? __DIR__.'/fixtures'
+            : __DIR__.'/fixtures/'.$path;
     }
 
     /**
      * Get log content.
      *
      * @param  string  $date
-     *
      * @return string
      */
     public function getLogContent($date)
@@ -437,13 +428,12 @@ abstract class TestCase extends BaseTestCase
      * Get log object from fixture.
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     protected function getLog($date)
     {
         $path = $this->getLogPath($date);
-        $raw  = $this->getLogContent($date);
+        $raw = $this->getLogContent($date);
 
         return Log::make($date, $path, $raw);
     }
@@ -452,7 +442,6 @@ abstract class TestCase extends BaseTestCase
      * Get random entry from a log file.
      *
      * @param  string  $date
-     *
      * @return mixed
      */
     protected function getRandomLogEntry($date)
@@ -476,11 +465,6 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * Create dummy log.
-     *
-     * @param string $date
-     * @param string $path
-     *
-     * @return bool
      */
     protected static function createDummyLog(string $date, string $path): bool
     {
@@ -495,7 +479,6 @@ abstract class TestCase extends BaseTestCase
      *
      * @param  string  $locale
      * @param  string  $key
-     *
      * @return mixed
      */
     private static function getTranslatedLevel($locale, $key)
@@ -511,15 +494,15 @@ abstract class TestCase extends BaseTestCase
     protected static function getTranslatedLevels()
     {
         $levels = [
-            'all'               => 'All',
+            'all' => 'All',
             LogLevel::EMERGENCY => 'Emergency',
-            LogLevel::ALERT     => 'Alert',
-            LogLevel::CRITICAL  => 'Critical',
-            LogLevel::ERROR     => 'Error',
-            LogLevel::WARNING   => 'Warning',
-            LogLevel::NOTICE    => 'Notice',
-            LogLevel::INFO      => 'Info',
-            LogLevel::DEBUG     => 'Debug',
+            LogLevel::ALERT => 'Alert',
+            LogLevel::CRITICAL => 'Critical',
+            LogLevel::ERROR => 'Error',
+            LogLevel::WARNING => 'Warning',
+            LogLevel::NOTICE => 'Notice',
+            LogLevel::INFO => 'Info',
+            LogLevel::DEBUG => 'Debug',
         ];
 
         return array_map(function ($locale) use ($levels) {

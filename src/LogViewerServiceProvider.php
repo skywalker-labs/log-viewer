@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer;
 
@@ -23,7 +23,7 @@ class LogViewerServiceProvider extends PackageServiceProvider
      *
      * @var string
      */
-    protected $vendor = 'skywalker';
+    protected $vendor = 'skywalker-labs';
 
     /**
      * Package name.
@@ -71,5 +71,48 @@ class LogViewerServiceProvider extends PackageServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishAll();
         }
+    }
+
+    /**
+     * Get the translations' folder name.
+     */
+    protected function getTranslationsFolderName(): string
+    {
+        return 'resources/lang';
+    }
+
+    /**
+     * Get the translations' path.
+     */
+    protected function getTranslationsPath(): string
+    {
+        return realpath(__DIR__.'/../resources/lang') ?: __DIR__.'/../resources/lang';
+    }
+
+    /**
+     * Get the base views path.
+     */
+    protected function getViewsPath(): string
+    {
+        return realpath(__DIR__.'/../resources/views') ?: __DIR__.'/../resources/views';
+    }
+
+    /**
+     * Load the translations files.
+     */
+    protected function loadTranslations(): void
+    {
+        $path = $this->getTranslationsPath();
+
+        $this->loadTranslationsFrom($path, $this->getPackageName());
+        $this->loadJsonTranslationsFrom($path);
+    }
+
+    /**
+     * Load the views files.
+     */
+    protected function loadViews(): void
+    {
+        $this->loadViewsFrom($this->getViewsPath(), $this->getPackageName());
     }
 }

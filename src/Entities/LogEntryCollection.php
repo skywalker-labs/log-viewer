@@ -1,17 +1,19 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Entities;
 
-use Skywalker\LogViewer\Helpers\LogParser;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\LazyCollection;
+use Skywalker\LogViewer\Helpers\LogParser;
 
 /**
  * Class     LogEntryCollection
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
+ *
+ * @extends LazyCollection<int, LogEntry>
  */
 class LogEntryCollection extends LazyCollection
 {
@@ -24,17 +26,20 @@ class LogEntryCollection extends LazyCollection
      * Load raw log entries.
      *
      * @param  string  $raw
-     *
      * @return self
      */
     public static function load($raw)
     {
-        return new static(function () use ($raw) {
+        return new self(function () use ($raw) {
             foreach (LogParser::parse($raw) as $entry) {
+                $level = is_string($entry['level'] ?? null) ? $entry['level'] : '';
+                $header = is_string($entry['header'] ?? null) ? $entry['header'] : '';
+                $stack = is_string($entry['stack'] ?? null) ? $entry['stack'] : null;
+
                 yield new LogEntry(
-                    $entry['level'],
-                    $entry['header'],
-                    $entry['stack'],
+                    $level,
+                    $header,
+                    $stack,
                     $entry
                 );
             }
@@ -45,12 +50,12 @@ class LogEntryCollection extends LazyCollection
      * Paginate log entries.
      *
      * @param  int  $perPage
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, mixed>
      */
     public function paginate($perPage = 20)
     {
         $page = request()->get('page', 1);
+        $page = is_numeric($page) ? (int) $page : 1;
         $path = request()->url();
 
         return new LengthAwarePaginator(
@@ -66,7 +71,6 @@ class LogEntryCollection extends LazyCollection
      * Get filtered log entries by level.
      *
      * @param  string  $level
-     *
      * @return self
      */
     public function filterByLevel($level)
@@ -79,14 +83,17 @@ class LogEntryCollection extends LazyCollection
     /**
      * Get log entries stats.
      *
-     * @return array
+     * @return array<string, int>
      */
-    public function stats()
+    public function stats(): array
     {
+        /** @var array<string, int> $counters */
         $counters = $this->initStats();
 
         foreach ($this->groupBy('level') as $level => $entries) {
-            $counters[$level] = $count = count($entries);
+            /** @var \Illuminate\Support\LazyCollection<int, LogEntry> $entries */
+            $levelKey = (string) $level;
+            $counters[$levelKey] = $count = $entries->count();
             $counters['all'] += $count;
         }
 
@@ -97,8 +104,7 @@ class LogEntryCollection extends LazyCollection
      * Get the log entries navigation tree.
      *
      * @param  bool|false  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function tree($trans = false)
     {
@@ -106,7 +112,7 @@ class LogEntryCollection extends LazyCollection
 
         array_walk($tree, function (&$count, $level) use ($trans) {
             $count = [
-                'name'  => $trans ? \log_levels()->get($level) : $level,
+                'name' => $trans ? \log_levels()->get($level) : $level,
                 'count' => $count,
             ];
         });
@@ -122,7 +128,7 @@ class LogEntryCollection extends LazyCollection
     /**
      * Init stats counters.
      *
-     * @return array
+     * @return array<string, int>
      */
     private function initStats()
     {

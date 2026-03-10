@@ -1,14 +1,14 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Utilities;
 
-use Skywalker\LogViewer\Contracts\Utilities\LogLevels as LogLevelsContract;
 use Illuminate\Support\Arr;
 use Illuminate\Translation\Translator;
 use Psr\Log\LogLevel;
 use ReflectionClass;
+use Skywalker\LogViewer\Contracts\Utilities\LogLevels as LogLevelsContract;
 
 /**
  * Class     LogLevels
@@ -25,23 +25,19 @@ class LogLevels implements LogLevelsContract
     /**
      * The log levels.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected static $levels = [];
 
     /**
      * The Translator instance.
-     *
-     * @var \Illuminate\Translation\Translator
      */
     private Translator $translator;
 
     /**
      * The selected locale.
-     *
-     * @var string
      */
-    private string $locale;
+    private string $locale = 'auto';
 
     /* -----------------------------------------------------------------
      |  Constructor
@@ -51,8 +47,7 @@ class LogLevels implements LogLevelsContract
     /**
      * LogLevels constructor.
      *
-     * @param  \Illuminate\Translation\Translator  $translator
-     * @param  string                              $locale
+     * @param  string  $locale
      */
     public function __construct(Translator $translator, $locale)
     {
@@ -68,7 +63,6 @@ class LogLevels implements LogLevelsContract
     /**
      * Set the Translator instance.
      *
-     * @param  \Illuminate\Translation\Translator  $translator
      *
      * @return $this
      */
@@ -81,10 +75,8 @@ class LogLevels implements LogLevelsContract
 
     /**
      * Get the selected locale.
-     *
-     * @return string
      */
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->locale === 'auto'
             ? $this->translator->getLocale()
@@ -94,13 +86,11 @@ class LogLevels implements LogLevelsContract
     /**
      * Set the selected locale.
      *
-     * @param  string  $locale
-     *
      * @return $this
      */
-    public function setLocale($locale)
+    public function setLocale(?string $locale): self
     {
-        $this->locale = is_null($locale) ? 'auto' : $locale;
+        $this->locale = (is_null($locale) || $locale === '') ? 'auto' : $locale;
 
         return $this;
     }
@@ -114,8 +104,7 @@ class LogLevels implements LogLevelsContract
      * Get the log levels.
      *
      * @param  bool  $flip
-     *
-     * @return array
+     * @return array<string, string>
      */
     public function lists($flip = false)
     {
@@ -126,8 +115,7 @@ class LogLevels implements LogLevelsContract
      * Get translated levels.
      *
      * @param  string|null  $locale
-     *
-     * @return array
+     * @return array<string, string>
      */
     public function names($locale = null)
     {
@@ -143,14 +131,14 @@ class LogLevels implements LogLevelsContract
     /**
      * Get PSR log levels.
      *
-     * @param  bool  $flip
-     *
-     * @return array
+     * @return array<string, string>
      */
-    public static function all($flip = false)
+    public static function all(bool $flip = false): array
     {
         if (empty(static::$levels)) {
-            static::$levels = (new ReflectionClass(LogLevel::class))->getConstants();
+            /** @var array<string, string> $constants */
+            $constants = (new ReflectionClass(LogLevel::class))->getConstants();
+            static::$levels = $constants;
         }
 
         return $flip ? array_flip(static::$levels) : static::$levels;
@@ -159,25 +147,37 @@ class LogLevels implements LogLevelsContract
     /**
      * Get the translated level.
      *
-     * @param  string       $key
+     * @param  string  $key
      * @param  string|null  $locale
-     *
      * @return string
      */
-    public function get($key, $locale = null)
+    public function get($key, $locale = null): string
     {
+        if (! is_string($key)) {
+            return '';
+        }
+
+        if ($this->translator->has("log-viewer::levels.{$key}", $locale)) {
+            $translated = $this->translator->get("log-viewer::levels.{$key}", [], $locale);
+
+            return is_string($translated) ? $translated : $key;
+        }
+
+        /** @var array<string, string> $translations */
         $translations = [
-            'all'               => 'All',
+            'all' => 'All',
             LogLevel::EMERGENCY => 'Emergency',
-            LogLevel::ALERT     => 'Alert',
-            LogLevel::CRITICAL  => 'Critical',
-            LogLevel::ERROR     => 'Error',
-            LogLevel::WARNING   => 'Warning',
-            LogLevel::NOTICE    => 'Notice',
-            LogLevel::INFO      => 'Info',
-            LogLevel::DEBUG     => 'Debug',
+            LogLevel::ALERT => 'Alert',
+            LogLevel::CRITICAL => 'Critical',
+            LogLevel::ERROR => 'Error',
+            LogLevel::WARNING => 'Warning',
+            LogLevel::NOTICE => 'Notice',
+            LogLevel::INFO => 'Info',
+            LogLevel::DEBUG => 'Debug',
         ];
 
-        return $this->translator->get(Arr::get($translations, $key, $key), [], $locale ?: $this->getLocale());
+        $result = Arr::get($translations, $key, $key);
+
+        return is_string($result) ? $result : '';
     }
 }

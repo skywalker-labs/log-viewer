@@ -1,13 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Entities;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Entities\LogEntryCollection;
 use Skywalker\LogViewer\Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     LogEntryCollectionTest
@@ -21,7 +20,6 @@ class LogEntryCollectionTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Entities\LogEntryCollection */
     private LogEntryCollection $entries;
 
     /* -----------------------------------------------------------------
@@ -49,7 +47,6 @@ class LogEntryCollectionTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(LogEntryCollection::class, $this->entries);
@@ -58,7 +55,6 @@ class LogEntryCollectionTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_load_raw_entries(): void
     {
         foreach ($this->getDates() as $date) {
@@ -71,7 +67,6 @@ class LogEntryCollectionTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_entries_by_level(): void
     {
         foreach ($this->getDates() as $date) {
@@ -86,7 +81,6 @@ class LogEntryCollectionTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_stats(): void
     {
         foreach ($this->getDates() as $date) {
@@ -101,7 +95,6 @@ class LogEntryCollectionTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_tree(): void
     {
         foreach ($this->getDates() as $date) {
@@ -130,7 +123,6 @@ class LogEntryCollectionTest extends TestCase
      * Get log entries
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     private function getEntries($date)

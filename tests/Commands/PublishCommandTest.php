@@ -1,12 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Commands;
 
-use Skywalker\LogViewer\Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use Skywalker\LogViewer\Tests\TestCase;
 
 /**
  * Class     PublishCommandTest
@@ -34,7 +34,6 @@ class PublishCommandTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_publish_all(): void
     {
         $this->artisan('log-viewer:publish')
@@ -46,10 +45,9 @@ class PublishCommandTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_publish_all_with_force(): void
     {
-        $this->artisan('log-viewer:publish', ['--force'   => true])
+        $this->artisan('log-viewer:publish', ['--force' => true])
             ->assertSuccessful();
 
         static::assertHasConfigFile();
@@ -58,7 +56,6 @@ class PublishCommandTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_publish_only_config(): void
     {
         $this->artisan('log-viewer:publish', ['--tag' => 'config'])
@@ -71,7 +68,6 @@ class PublishCommandTest extends TestCase
 
     #[Test]
     #[DataProvider('providePublishableTranslationsTags')]
-
     public function it_can_publish_only_translations(string $tag): void
     {
         $this->artisan('log-viewer:publish', ['--tag' => $tag])
@@ -118,17 +114,28 @@ class PublishCommandTest extends TestCase
      */
     protected function assertHasLocalizationFiles(): void
     {
-        $path        = $this->getLocalizationFolder();
+        $path = $this->getLocalizationFolder();
+
+        static::assertNotFalse($path, 'The localization folder was not published.');
+
         $directories = $this->illuminateFile()->directories($path);
-        $locales     = array_map('basename', $directories);
+        
+        if (empty($directories)) {
+            // If no directories, at least check for JSON files since it's a JSON-based package
+            $files = $this->illuminateFile()->files($path);
+            static::assertNotEmpty($files, 'No localization files found in '.$path);
+            return;
+        }
+
+        $locales = array_map('basename', $directories);
 
         static::assertEmpty(
             $missing = array_diff($locales, static::$locales),
-            'The locales [' . implode(', ', $missing) . '] are missing in the Ermradulsharma\\LogViewer\\Tests\\TestCase::$locales (line 29) for tests purposes.'
+            'The locales ['.implode(', ', $missing).'] are missing in the Ermradulsharma\\LogViewer\\Tests\\TestCase::$locales (line 29) for tests purposes.'
         );
 
         foreach ($directories as $directory) {
-            static::assertFileExists($directory . '/levels.php');
+            static::assertFileExists($directory.'/levels.php');
         }
     }
 
@@ -169,7 +176,7 @@ class PublishCommandTest extends TestCase
      */
     private function getConfigFilePath(): string
     {
-        return $this->getConfigPath() . '/log-viewer.php';
+        return $this->getConfigPath().'/log-viewer.php';
     }
 
     /**

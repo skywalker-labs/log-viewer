@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Contracts\Utilities;
 
-use Skywalker\LogViewer\Entities\Log;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
+use Skywalker\LogViewer\Entities\Log;
 
 /**
  * Interface  LogMenu
@@ -22,7 +22,6 @@ interface LogMenu
     /**
      * Set the config instance.
      *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
      *
      * @return self
      */
@@ -31,7 +30,6 @@ interface LogMenu
     /**
      * Set the log styler instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogStyler  $styler
      *
      * @return self
      */
@@ -45,10 +43,8 @@ interface LogMenu
     /**
      * Make log menu.
      *
-     * @param  \Skywalker\LogViewer\Entities\Log  $log
-     * @param  bool                               $trans
-     *
-     * @return array
+     * @param  bool  $trans
+     * @return array<string, mixed>
      */
     public function make(Log $log, $trans = true);
 }

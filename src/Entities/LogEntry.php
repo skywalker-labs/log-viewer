@@ -1,18 +1,21 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Entities;
 
-use Skywalker\LogViewer\Helpers\LogParser;
 use Carbon\Carbon;
-use Illuminate\Contracts\Support\{Arrayable, Jsonable};
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
+use Skywalker\LogViewer\Helpers\LogParser;
 
 /**
  * Class     LogEntry
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
+ *
+ * @implements Arrayable<string, mixed>
  */
 class LogEntry implements Arrayable, Jsonable, JsonSerializable
 {
@@ -27,7 +30,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     /** @var string */
     public $level;
 
-    /** @var \Carbon\Carbon */
+    /** @var \Carbon\Carbon|\Carbon\CarbonInterface */
     public $datetime;
 
     /** @var string|null */
@@ -42,7 +45,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     /** @var string */
     public $stack;
 
-    /** @var array */
+    /** @var array<string, mixed> */
     public $context = [];
 
     /* -----------------------------------------------------------------
@@ -53,10 +56,10 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     /**
      * Construct the log entry instance.
      *
-     * @param  string       $level
-     * @param  string       $header
+     * @param  string  $level
+     * @param  string  $header
      * @param  string|null  $stack
-     * @param  array        $data
+     * @param  array<string, mixed>  $data
      */
     public function __construct($level, $header, $stack = null, array $data = [])
     {
@@ -64,13 +67,13 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
         $this->setHeader($header);
         $this->setStack($stack);
 
-        $this->env = $data['env'] ?? 'local';
-        $this->ip = $data['ip'] ?? $this->extractIp();
-        $this->correlationId = $data['correlationId'] ?? $data['cid'] ?? $this->extractCorrelationId();
+        $this->env = is_string($env = $data['env'] ?? 'local') ? $env : 'local';
+        $this->ip = is_string($ip = $data['ip'] ?? $this->extractIp()) ? $ip : null;
+        $this->correlationId = is_string($cid = $data['correlationId'] ?? $data['cid'] ?? $this->extractCorrelationId()) ? $cid : null;
 
         if (isset($data['datetime'])) {
             try {
-                $this->datetime = Carbon::parse($data['datetime']);
+                $this->datetime = Carbon::parse(is_string($data['datetime']) ? $data['datetime'] : null);
             } catch (\Exception $e) {
                 // Keep default datetime from setHeader
             }
@@ -79,7 +82,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
 
     /**
      * Extract IP address from header or context.
-     * 
+     *
      * @return string|null
      */
     protected function extractIp()
@@ -90,7 +93,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
             return $matches[0];
         }
 
-        if (isset($this->context['ip'])) {
+        if (isset($this->context['ip']) && is_string($this->context['ip'])) {
             return $this->context['ip'];
         }
 
@@ -99,7 +102,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
 
     /**
      * Extract Correlation ID from header or context.
-     * 
+     *
      * @return string|null
      */
     protected function extractCorrelationId()
@@ -119,7 +122,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
         // Check context for common keys
         $cidKeys = ['request_id', 'correlation_id', 'trace_id', 'cid'];
         foreach ($cidKeys as $key) {
-            if (isset($this->context[$key])) {
+            if (isset($this->context[$key]) && is_string($this->context[$key])) {
                 return $this->context[$key];
             }
         }
@@ -136,7 +139,6 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Set the entry level.
      *
      * @param  string  $level
-     *
      * @return self
      */
     private function setLevel($level)
@@ -150,7 +152,6 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Set the entry header.
      *
      * @param  string  $header
-     *
      * @return self
      */
     private function setHeader($header)
@@ -167,8 +168,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     /**
      * Set the context.
      *
-     * @param  array  $context
-     *
+     * @param  array<string, mixed>  $context
      * @return $this
      */
     private function setContext(array $context)
@@ -182,12 +182,13 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Set entry environment.
      *
      * @param  string  $env
-     *
      * @return self
      */
     private function setEnv($env)
     {
-        $this->env = head(explode('.', $env));
+        $parts = explode('.', $env);
+        $head = head($parts);
+        $this->env = is_string($head) ? $head : 'local';
 
         return $this;
     }
@@ -196,7 +197,6 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Set the entry date time.
      *
      * @param  string  $datetime
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntry
      */
     private function setDatetime($datetime)
@@ -213,13 +213,11 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     /**
      * Set the entry stack.
      *
-     * @param  string  $stack
-     *
      * @return self
      */
-    private function setStack($stack)
+    private function setStack(?string $stack)
     {
-        $this->stack = $stack;
+        $this->stack = $stack ?? '';
 
         return $this;
     }
@@ -231,7 +229,7 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      */
     public function level()
     {
-        return $this->icon()->toHtml() . ' ' . $this->name();
+        return $this->icon()->toHtml().' '.$this->name();
     }
 
     /**
@@ -273,31 +271,34 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     {
         $stack = $this->applyMasking(trim(htmlentities($this->stack)));
 
-        if (! $ide = config('log-viewer.ide')) {
+        $ide = config('log-viewer.ide');
+        if (! is_string($ide) || empty($ide)) {
             return $stack;
         }
 
         $schemes = [
-            'vscode'   => 'vscode://file/%f:%l',
+            'vscode' => 'vscode://file/%f:%l',
             'phpstorm' => 'phpstorm://open?file=%f&line=%l',
-            'sublime'  => 'subl://open?url=file://%f&line=%l',
-            'atom'     => 'atom://core/open/file?filename=%f&line=%l',
+            'sublime' => 'subl://open?url=file://%f&line=%l',
+            'atom' => 'atom://core/open/file?filename=%f&line=%l',
         ];
 
         $scheme = $schemes[$ide] ?? $ide; // Allow custom schemes if someone manually sets it
 
         // Pattern to match file paths with line numbers (e.g. /app/User.php(32))
         // This is a naive pattern but covers standard PHP stack traces.
-        return preg_replace_callback('/(#\d+\s+)?(\/[a-zA-Z0-9_\-\.\/]+)\((\d+)\)/', function ($matches) use ($scheme) {
+        $result = preg_replace_callback('/(#\d+\s+)?(\/[a-zA-Z0-9_\-\.\/]+)\((\d+)\)/', function ($matches) use ($scheme) {
             $fullMatch = $matches[0];
-            $prefix    = $matches[1]; // "#0 "
-            $file      = $matches[2]; // "/path/to/file.php"
-            $line      = $matches[3]; // "123"
+            $prefix = $matches[1]; // "#0 "
+            $file = $matches[2]; // "/path/to/file.php"
+            $line = $matches[3]; // "123"
 
-            $url = str_replace(['%f', '%l'], [$file, $line], $scheme);
+            $url = str_replace(['%f', '%l'], [$file, $line], (string) $scheme);
 
-            return $prefix . '<a href="' . $url . '" class="hover:underline hover:text-primary-600" title="Open in IDE">' . $file . ' (' . $line . ')</a>';
+            return $prefix.'<a href="'.$url.'" class="hover:underline hover:text-primary-600" title="Open in IDE">'.$file.' ('.$line.')</a>';
         }, $stack);
+
+        return is_string($result) ? $result : $stack;
     }
 
     /**
@@ -305,14 +306,15 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      */
     public function context(int $options = JSON_PRETTY_PRINT): string
     {
-        return $this->applyMasking(json_encode($this->context, $options));
+        $encoded = json_encode($this->context, $options);
+
+        return ltrim($this->applyMasking(is_string($encoded) ? $encoded : ''));
     }
 
     /**
      * Apply masking to the content.
      *
      * @param  string  $content
-     *
      * @return string
      */
     protected function applyMasking($content)
@@ -321,8 +323,14 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
             return $content;
         }
 
-        foreach (config('log-viewer.masking.patterns', []) as $pattern => $replacement) {
-            $content = preg_replace($pattern, $replacement, $content);
+        $patterns = config('log-viewer.masking.patterns', []);
+        if (is_array($patterns)) {
+            foreach ($patterns as $pattern => $replacement) {
+                if (is_string($pattern) && is_string($replacement)) {
+                    $replaced = preg_replace($pattern, $replacement, $content);
+                    $content = is_string($replaced) ? $replaced : $content;
+                }
+            }
         }
 
         return $content;
@@ -337,7 +345,6 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Check if same log level.
      *
      * @param  string  $level
-     *
      * @return bool
      */
     public function isSameLevel($level)
@@ -353,15 +360,15 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
     /**
      * Get the log entry as an array.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray()
     {
         return [
-            'level'    => $this->level,
+            'level' => $this->level,
             'datetime' => $this->datetime->format('Y-m-d H:i:s'),
-            'header'   => $this->header,
-            'stack'    => $this->stack
+            'header' => $this->header,
+            'stack' => $this->stack,
         ];
     }
 
@@ -369,16 +376,17 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Convert the log entry to its JSON representation.
      *
      * @param  int  $options
-     *
      * @return string
      */
     public function toJson($options = 0)
     {
-        return json_encode($this->toArray(), $options);
+        return (string) json_encode($this->toArray(), $options);
     }
 
     /**
      * Serialize the log entry object to json data.
+     *
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -419,15 +427,14 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Clean the entry header.
      *
      * @param  string  $header
-     *
      * @return string
      */
     private function cleanHeader($header)
     {
         // REMOVE THE DATE
-        $header = preg_replace('/\[' . LogParser::REGEX_DATETIME_PATTERN . '\][ ]/', '', $header);
+        $removed = preg_replace('/\['.LogParser::REGEX_DATETIME_PATTERN.'\][ ]/', '', $header);
+        $header = is_string($removed) ? $removed : $header;
 
-        // EXTRACT ENV
         if (preg_match('/^[a-z]+.[A-Z]+:/', $header, $out)) {
             $this->setEnv($out[0]);
             $header = trim(str_replace($out[0], '', $header));
@@ -435,9 +442,12 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
 
         // EXTRACT CONTEXT (Regex from https://stackoverflow.com/a/21995025)
         preg_match_all('/{(?:[^{}]|(?R))*}/x', $header, $out);
-        if (isset($out[0][0]) && ! is_null($context = json_decode($out[0][0], true))) {
+        if (isset($out[0][0]) && is_string($out[0][0]) && ! is_null($context = json_decode($out[0][0], true))) {
             $header = str_replace($out[0][0], '', $header);
-            $this->setContext($context);
+
+            /** @var array<string, mixed> $context */
+            $contextArray = $context;
+            $this->setContext($contextArray);
         }
 
         return $header;
@@ -447,11 +457,12 @@ class LogEntry implements Arrayable, Jsonable, JsonSerializable
      * Extract datetime from the header.
      *
      * @param  string  $header
-     *
      * @return string
      */
     private function extractDatetime($header)
     {
-        return preg_replace('/^\[(' . LogParser::REGEX_DATETIME_PATTERN . ')\].*/', '$1', $header);
+        $extracted = preg_replace('/^\[('.LogParser::REGEX_DATETIME_PATTERN.')\].*/', '$1', $header);
+
+        return is_string($extracted) ? $extracted : $header;
     }
 }

@@ -1,13 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Utilities;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Tests\TestCase;
 use Skywalker\LogViewer\Utilities\LogChecker;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     LogCheckerTest
@@ -21,7 +20,6 @@ class LogCheckerTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Utilities\LogChecker */
     private LogChecker $checker;
 
     /* -----------------------------------------------------------------
@@ -49,14 +47,12 @@ class LogCheckerTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(LogChecker::class, $this->checker);
     }
 
     #[Test]
-
     public function it_must_fails(): void
     {
         static::assertFalse($this->checker->passes());
@@ -64,7 +60,6 @@ class LogCheckerTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_messages(): void
     {
         $messages = $this->checker->messages();
@@ -77,7 +72,6 @@ class LogCheckerTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_requirements(): void
     {
         $requirements = $this->checker->requirements();
@@ -89,7 +83,6 @@ class LogCheckerTest extends TestCase
     }
 
     #[Test]
-
     public function it_must_fail_the_requirements_on_handler(): void
     {
         config()->set('logging.default', 'stack');

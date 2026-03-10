@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Skywalker\LogViewer\Commands;
 
 use Illuminate\Support\Carbon;
@@ -28,8 +30,6 @@ class PruneCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -37,6 +37,7 @@ class PruneCommand extends Command
 
         if (! config('log-viewer.retention.enabled', false) && ! $this->option('force')) {
             $this->warn('Retention policy is disabled. Use --force to prune anyway.');
+
             return static::SUCCESS;
         }
 

@@ -1,13 +1,12 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Entities;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Entities\LogEntry;
 use Skywalker\LogViewer\Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     LogEntryTest
@@ -21,7 +20,6 @@ class LogEntryTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Entities\LogEntry */
     private LogEntry $entry;
 
     /* -----------------------------------------------------------------
@@ -49,7 +47,6 @@ class LogEntryTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(LogEntry::class, $this->entry);
@@ -58,14 +55,12 @@ class LogEntryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_convert_to_json(): void
     {
         static::assertJsonObject($this->entry);
     }
 
     #[Test]
-
     public function it_can_check_if_same_level(): void
     {
         $level = $this->entry->level;
@@ -74,14 +69,12 @@ class LogEntryTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_stack(): void
     {
         static::assertNotSame($this->entry->stack, $this->entry->stack());
     }
 
     #[Test]
-
     public function it_can_extract_context(): void
     {
         $entry = new LogEntry(

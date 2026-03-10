@@ -1,12 +1,11 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests;
 
-use Skywalker\LogViewer\LogViewerServiceProvider;
 use PHPUnit\Framework\Attributes\Test;
-
+use Skywalker\LogViewer\LogViewerServiceProvider;
 
 /**
  * Class     LogViewerServiceProviderTest
@@ -20,7 +19,6 @@ class LogViewerServiceProviderTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  LogViewerServiceProvider */
     private LogViewerServiceProvider $provider;
 
     /* -----------------------------------------------------------------
@@ -28,14 +26,14 @@ class LogViewerServiceProviderTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->provider = $this->app->getProvider(LogViewerServiceProvider::class);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->provider);
 
@@ -48,7 +46,6 @@ class LogViewerServiceProviderTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         $expectations = [
@@ -64,7 +61,6 @@ class LogViewerServiceProviderTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_provides(): void
     {
         $expected = [];

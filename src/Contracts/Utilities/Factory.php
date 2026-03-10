@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Skywalker\LogViewer\Contracts\Utilities;
 
 use Skywalker\LogViewer\Contracts\Patternable;
-use Skywalker\LogViewer\Contracts\Utilities\{Filesystem, LogLevels};
 
 /**
  * Interface  Factory
@@ -29,7 +28,6 @@ interface Factory extends Patternable
     /**
      * Set the filesystem instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\Filesystem  $filesystem
      *
      * @return self
      */
@@ -38,14 +36,13 @@ interface Factory extends Patternable
     /**
      * Get the log levels instance.
      *
-     * @return  \Skywalker\LogViewer\Contracts\Utilities\LogLevels  $levels
+     * @return \Skywalker\LogViewer\Contracts\Utilities\LogLevels $levels
      */
     public function getLevels();
 
     /**
      * Set the log levels instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogLevels  $levels
      *
      * @return self
      */
@@ -55,7 +52,6 @@ interface Factory extends Patternable
      * Set the log storage path.
      *
      * @param  string  $storagePath
-     *
      * @return self
      */
     public function setPath($storagePath);
@@ -85,8 +81,7 @@ interface Factory extends Patternable
      * Paginate all logs.
      *
      * @param  int  $perPage
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, mixed>
      */
     public function paginate($perPage = 30);
 
@@ -94,7 +89,6 @@ interface Factory extends Patternable
      * Get a log by date.
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     public function log($date);
@@ -103,7 +97,6 @@ interface Factory extends Patternable
      * Get a log by date (alias).
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     public function get($date);
@@ -113,7 +106,6 @@ interface Factory extends Patternable
      *
      * @param  string  $date
      * @param  string  $level
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     public function entries($date, $level = 'all');
@@ -121,7 +113,7 @@ interface Factory extends Patternable
     /**
      * List the log files (dates).
      *
-     * @return array
+     * @return array<int, string>
      */
     public function dates();
 
@@ -136,7 +128,6 @@ interface Factory extends Patternable
      * Get total log entries.
      *
      * @param  string  $level
-     *
      * @return int
      */
     public function total($level = 'all');
@@ -145,8 +136,7 @@ interface Factory extends Patternable
      * Get tree menu.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function tree($trans = false);
 
@@ -154,15 +144,14 @@ interface Factory extends Patternable
      * Get tree menu.
      *
      * @param  bool  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function menu($trans = true);
 
     /**
      * Get logs statistics.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function stats();
 
@@ -170,7 +159,6 @@ interface Factory extends Patternable
      * Get logs statistics table.
      *
      * @param  string|null  $locale
-     *
      * @return \Skywalker\LogViewer\Tables\StatsTable
      */
     public function statsTable($locale = null);

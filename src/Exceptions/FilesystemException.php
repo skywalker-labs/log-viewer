@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Exceptions;
 
@@ -11,13 +11,13 @@ namespace Skywalker\LogViewer\Exceptions;
  */
 class FilesystemException extends LogViewerException
 {
-    public static function cannotDeleteLog()
+    public static function cannotDeleteLog(): self
     {
-        return new static('There was an error deleting the log.');
+        return new self('There was an error deleting the log.');
     }
 
-    public static function invalidPath(string $path)
+    public static function invalidPath(string $path): self
     {
-        return new static("The log(s) could not be located at : $path");
+        return new self("The log(s) could not be located at : $path");
     }
 }

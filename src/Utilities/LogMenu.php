@@ -1,13 +1,13 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Utilities;
 
+use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Skywalker\LogViewer\Contracts\Utilities\LogMenu as LogMenuContract;
 use Skywalker\LogViewer\Contracts\Utilities\LogStyler as LogStylerContract;
 use Skywalker\LogViewer\Entities\Log;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
 
 /**
  * Class     LogMenu
@@ -23,15 +23,11 @@ class LogMenu implements LogMenuContract
 
     /**
      * The config repository instance.
-     *
-     * @var \Illuminate\Contracts\Config\Repository
      */
     protected ConfigContract $config;
 
     /**
      * The log styler instance.
-     *
-     * @var \Skywalker\LogViewer\Contracts\Utilities\LogStyler
      */
     private LogStylerContract $styler;
 
@@ -42,9 +38,6 @@ class LogMenu implements LogMenuContract
 
     /**
      * LogMenu constructor.
-     *
-     * @param  \Illuminate\Contracts\Config\Repository             $config
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogStyler  $styler
      */
     public function __construct(ConfigContract $config, LogStylerContract $styler)
     {
@@ -60,7 +53,6 @@ class LogMenu implements LogMenuContract
     /**
      * Set the config instance.
      *
-     * @param  \Illuminate\Contracts\Config\Repository  $config
      *
      * @return self
      */
@@ -74,7 +66,6 @@ class LogMenu implements LogMenuContract
     /**
      * Set the log styler instance.
      *
-     * @param  \Skywalker\LogViewer\Contracts\Utilities\LogStyler  $styler
      *
      * @return self
      */
@@ -93,10 +84,8 @@ class LogMenu implements LogMenuContract
     /**
      * Make log menu.
      *
-     * @param  \Skywalker\LogViewer\Entities\Log  $log
-     * @param  bool                               $trans
-     *
-     * @return array
+     * @param  bool  $trans
+     * @return array<string, mixed>
      */
     public function make(Log $log, $trans = true)
     {
@@ -104,9 +93,9 @@ class LogMenu implements LogMenuContract
         $route = $this->config('menu.filter-route');
 
         foreach ($log->tree($trans) as $level => $item) {
-            $items[$level] = array_merge($item, [
-                'url'  => route($route, [$log->date, $level]),
-                'icon' => $this->isIconsEnabled() ? $this->styler->icon($level)->toHtml() : '',
+            $items[$level] = array_merge(is_array($item) ? $item : [], [
+                'url' => route(is_string($route) ? $route : 'log-viewer::logs.filter', [$log->date, $level]),
+                'icon' => $this->isIconsEnabled() ? $this->styler->icon((string) $level)->toHtml() : '',
             ]);
         }
 
@@ -137,8 +126,7 @@ class LogMenu implements LogMenuContract
      * Get config.
      *
      * @param  string  $key
-     * @param  mixed   $default
-     *
+     * @param  mixed  $default
      * @return mixed
      */
     private function config($key, $default = null)

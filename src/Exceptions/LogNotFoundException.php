@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Exceptions;
 
@@ -13,13 +13,9 @@ class LogNotFoundException extends LogViewerException
 {
     /**
      * Make the exception.
-     *
-     * @param  string  $date
-     *
-     * @return static
      */
-    public static function make(string $date)
+    public static function make(string $date): self
     {
-        return new static("Log not found in this date [{$date}]");
+        return new self("Log not found in this date [{$date}]");
     }
 }

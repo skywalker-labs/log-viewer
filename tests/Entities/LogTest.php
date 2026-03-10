@@ -1,14 +1,13 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Entities;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Entities\Log;
 use Skywalker\LogViewer\Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\DataProvider;
-
 
 /**
  * Class     LogTest
@@ -22,7 +21,6 @@ class LogTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Entities\Log */
     private Log $log;
 
     /* -----------------------------------------------------------------
@@ -50,7 +48,6 @@ class LogTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         $entries = $this->log->entries();
@@ -64,7 +61,6 @@ class LogTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDates')]
-
     public function it_can_get_date($date): void
     {
         $log = $this->getLog($date);
@@ -75,7 +71,6 @@ class LogTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDates')]
-
     public function it_can_get_path($date): void
     {
         static::assertFileExists($this->getLog($date)->getPath());
@@ -83,7 +78,6 @@ class LogTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDates')]
-
     public function it_can_get_all_entries($date): void
     {
         $entries = $this->getLog($date)->entries();
@@ -95,7 +89,6 @@ class LogTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDates')]
-
     public function it_can_get_all_entries_by_level($date): void
     {
         $log = $this->getLog($date);
@@ -107,7 +100,6 @@ class LogTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_log_stats(): void
     {
         foreach ($this->log->stats() as $level => $counter) {
@@ -117,7 +109,6 @@ class LogTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDates')]
-
     public function it_can_get_tree($date): void
     {
         $menu = $this->getLog($date)->tree();
@@ -137,7 +128,6 @@ class LogTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDates')]
-
     public function it_can_get_translated_menu($date): void
     {
         foreach (self::$locales as $locale) {
@@ -161,7 +151,6 @@ class LogTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_convert_to_json(): void
     {
         static::assertJsonObject($this->log);
@@ -179,7 +168,7 @@ class LogTest extends TestCase
     {
         return [
             ['2015-01-01'],
-            ['2015-01-02']
+            ['2015-01-02'],
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Contracts;
 
@@ -20,8 +20,7 @@ interface LogViewer extends Patternable
      * Get the log levels.
      *
      * @param  bool|false  $flip
-     *
-     * @return array
+     * @return array<string, string>
      */
     public function levels($flip = false);
 
@@ -29,8 +28,7 @@ interface LogViewer extends Patternable
      * Get the translated log levels.
      *
      * @param  string|null  $locale
-     *
-     * @return array
+     * @return array<string, string>
      */
     public function levelsNames($locale = null);
 
@@ -38,7 +36,6 @@ interface LogViewer extends Patternable
      * Set the log storage path.
      *
      * @param  string  $path
-     *
      * @return self
      */
     public function setPath($path);
@@ -59,8 +56,7 @@ interface LogViewer extends Patternable
      * Paginate all logs.
      *
      * @param  int  $perPage
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, mixed>
      */
     public function paginate($perPage = 30);
 
@@ -68,7 +64,6 @@ interface LogViewer extends Patternable
      * Get a log.
      *
      * @param  string  $date
-     *
      * @return \Skywalker\LogViewer\Entities\Log
      */
     public function get($date);
@@ -78,7 +73,6 @@ interface LogViewer extends Patternable
      *
      * @param  string  $date
      * @param  string  $level
-     *
      * @return \Skywalker\LogViewer\Entities\LogEntryCollection
      */
     public function entries($date, $level = 'all');
@@ -86,10 +80,9 @@ interface LogViewer extends Patternable
     /**
      * Download a log file.
      *
-     * @param  string       $date
+     * @param  string  $date
      * @param  string|null  $filename
-     * @param  array        $headers
-     *
+     * @param  array<string, mixed>  $headers
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function download($date, $filename = null, $headers = []);
@@ -97,7 +90,7 @@ interface LogViewer extends Patternable
     /**
      * Get logs statistics.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function stats();
 
@@ -105,7 +98,6 @@ interface LogViewer extends Patternable
      * Get logs statistics table.
      *
      * @param  string|null  $locale
-     *
      * @return \Skywalker\LogViewer\Tables\StatsTable
      */
     public function statsTable($locale = null);
@@ -114,7 +106,6 @@ interface LogViewer extends Patternable
      * Delete the log.
      *
      * @param  string  $date
-     *
      * @return bool
      *
      * @throws \Skywalker\LogViewer\Exceptions\FilesystemException
@@ -131,14 +122,14 @@ interface LogViewer extends Patternable
     /**
      * List the log files.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function files();
 
     /**
      * List the log files (only dates).
      *
-     * @return array
+     * @return array<int, string>
      */
     public function dates();
 
@@ -153,7 +144,6 @@ interface LogViewer extends Patternable
      * Get entries total from all logs.
      *
      * @param  string  $level
-     *
      * @return int
      */
     public function total($level = 'all');
@@ -162,8 +152,7 @@ interface LogViewer extends Patternable
      * Get logs tree.
      *
      * @param  bool|false  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function tree($trans = false);
 
@@ -171,8 +160,7 @@ interface LogViewer extends Patternable
      * Get logs menu.
      *
      * @param  bool|true  $trans
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function menu($trans = true);
 

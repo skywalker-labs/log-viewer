@@ -1,14 +1,13 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Tests\Tables;
 
+use PHPUnit\Framework\Attributes\Test;
 use Skywalker\LogViewer\Contracts\Table as TableContract;
 use Skywalker\LogViewer\Tables\StatsTable;
 use Skywalker\LogViewer\Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-
 
 /**
  * Class     StatsTableTest
@@ -22,10 +21,8 @@ class StatsTableTest extends TestCase
      | -----------------------------------------------------------------
      */
 
-    /** @var  \Skywalker\LogViewer\Tables\StatsTable */
     private StatsTable $table;
 
-    /** @var array */
     private array $rawData;
 
     /* -----------------------------------------------------------------
@@ -56,14 +53,12 @@ class StatsTableTest extends TestCase
      */
 
     #[Test]
-
     public function it_can_be_instantiated(): void
     {
         static::assertInstanceOf(StatsTable::class, $this->table);
     }
 
     #[Test]
-
     public function it_can_make_instance(): void
     {
         $this->table = StatsTable::make(
@@ -75,28 +70,24 @@ class StatsTableTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_header(): void
     {
         static::assertTableHeader($this->table);
     }
 
     #[Test]
-
     public function it_can_get_rows(): void
     {
         static::assertTableRows($this->table);
     }
 
     #[Test]
-
     public function it_can_get_footer(): void
     {
         static::assertTableFooter($this->table);
     }
 
     #[Test]
-
     public function it_can_get_raw_data(): void
     {
         static::assertEquals(
@@ -106,7 +97,6 @@ class StatsTableTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_totals(): void
     {
         $totals = $this->table->totals();
@@ -115,7 +105,6 @@ class StatsTableTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_json_data_for_chart(): void
     {
         $json = $this->table->totalsJson();
@@ -124,20 +113,18 @@ class StatsTableTest extends TestCase
     }
 
     #[Test]
-
     public function it_can_get_stats_table_via_log_viewer(): void
     {
-        /** @var  \Skywalker\LogViewer\Contracts\LogViewer  $logViewer */
+        /** @var \Skywalker\LogViewer\Contracts\LogViewer $logViewer */
         $logViewer = $this->app->make(\Skywalker\LogViewer\Contracts\LogViewer::class);
 
         static::assertTable($logViewer->statsTable());
     }
 
     #[Test]
-
     public function it_can_get_stats_table_via_log_factory(): void
     {
-        /** @var  \Skywalker\LogViewer\Contracts\Utilities\Factory  $logFactory */
+        /** @var \Skywalker\LogViewer\Contracts\Utilities\Factory $logFactory */
         $logFactory = $this->app->make(\Skywalker\LogViewer\Contracts\Utilities\Factory::class);
 
         static::assertTable($logFactory->statsTable());
@@ -150,8 +137,6 @@ class StatsTableTest extends TestCase
 
     /**
      * Assert table instance.
-     *
-     * @param  \Skywalker\LogViewer\Contracts\Table  $table
      */
     protected static function assertTable(TableContract $table): void
     {
@@ -162,8 +147,6 @@ class StatsTableTest extends TestCase
 
     /**
      * Assert table header.
-     *
-     * @param  \Skywalker\LogViewer\Contracts\Table  $table
      */
     protected static function assertTableHeader(TableContract $table): void
     {
@@ -175,8 +158,6 @@ class StatsTableTest extends TestCase
 
     /**
      * Assert table rows.
-     *
-     * @param  \Skywalker\LogViewer\Contracts\Table  $table
      */
     protected static function assertTableRows(TableContract $table): void
     {
@@ -204,8 +185,6 @@ class StatsTableTest extends TestCase
 
     /**
      * Assert table footer.
-     *
-     * @param  \Skywalker\LogViewer\Contracts\Table  $table
      */
     protected static function assertTableFooter(TableContract $table): void
     {

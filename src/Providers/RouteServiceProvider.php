@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Providers;
 
@@ -21,8 +21,6 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Check if routes is enabled
-     *
-     * @return bool
      */
     public function isEnabled(): bool
     {
@@ -40,9 +38,7 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if ($this->isEnabled()) {
-            $this->routes(function () {
-                static::mapRouteClasses([LogViewerRoute::class]);
-            });
+            $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
         }
     }
 
@@ -54,13 +50,15 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Get config value by key
      *
-     * @param  string      $key
+     * @param  string  $key
      * @param  mixed|null  $default
-     *
      * @return mixed
      */
     private function config($key, $default = null)
     {
-        return $this->app['config']->get("log-viewer.route.$key", $default);
+        /** @var \Illuminate\Config\Repository $config */
+        $config = $this->app->make('config');
+
+        return $config->get("log-viewer.route.$key", $default);
     }
 }

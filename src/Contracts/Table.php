@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Skywalker\LogViewer\Contracts;
 
@@ -19,21 +19,21 @@ interface Table
     /**
      * Get table header.
      *
-     * @return array
+     * @return array<int, mixed>
      */
     public function header();
 
     /**
      * Get table rows.
      *
-     * @return array
+     * @return array<int, mixed>
      */
     public function rows();
 
     /**
      * Get table footer.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function footer();
 }
