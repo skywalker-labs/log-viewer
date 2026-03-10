@@ -167,7 +167,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
     /**
      * Get log stats.
      *
-     * @return array<string, mixed>
+     * @return array<string, int>
      */
     public function stats()
     {
@@ -178,7 +178,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get the log navigation tree.
      *
      * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array{name: string, count: int}>
      */
     public function tree($trans = false)
     {
@@ -189,7 +189,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get log entries menu.
      *
      * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array{name: string, count: int, url: string, icon: string}>
      */
     public function menu($trans = true)
     {
@@ -204,7 +204,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
     /**
      * Get the log as a plain array.
      *
-     * @return array<string, mixed>
+     * @return array{date: string, path: string, entries: array<int, array<string, mixed>>}
      */
     public function toArray()
     {
@@ -229,7 +229,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
     /**
      * Serialize the log object to json data.
      *
-     * @return array<string, mixed>
+     * @return array{date: string, path: string, entries: array<int, array<string, mixed>>}
      */
     public function jsonSerialize(): array
     {

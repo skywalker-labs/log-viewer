@@ -43,7 +43,7 @@ class LogChecker implements LogCheckerContract
     /**
      * The check messages.
      *
-     * @var array<string, mixed>
+     * @var array{handler: string, files: array<string, string>}
      */
     private array $messages;
 
@@ -114,7 +114,7 @@ class LogChecker implements LogCheckerContract
     /**
      * Get messages.
      *
-     * @return array<string, mixed>
+     * @return array{handler: string, files: array<string, string>}
      */
     public function messages()
     {
@@ -148,7 +148,7 @@ class LogChecker implements LogCheckerContract
     /**
      * Get the requirements.
      *
-     * @return array<string, mixed>
+     * @return array{status: string, header: string, message: string}
      */
     public function requirements()
     {

@@ -59,7 +59,7 @@ interface LogChecker
     /**
      * Get messages.
      *
-     * @return array<string, mixed>
+     * @return array{handler: string, files: array<string, string>}
      */
     public function messages();
 
@@ -80,7 +80,7 @@ interface LogChecker
     /**
      * Get the requirements
      *
-     * @return array<string, mixed>
+     * @return array{status: string, header: string, message: string}
      */
     public function requirements();
 }
