@@ -91,7 +91,7 @@ interface Filesystem extends Patternable
      * List the log files (Only dates).
      *
      * @param  bool  $withPaths
-     * @return array<int, string>
+     * @return array<int, string>|array<string, string>
      */
     public function dates($withPaths = false);
 
