@@ -90,6 +90,8 @@ jobs:
       - name: Install dependencies
         run: |
           composer config audit.block-insecure false || true
+          if [ $(echo "${{ matrix.php }} < 8.0" | bc) -eq 1 ]; then composer remove --dev laravel/pint --no-update --no-interaction --no-audit; fi
+          if [ $(echo "${{ matrix.php }} < 8.2" | bc) -eq 1 ]; then composer remove --dev phpstan/phpstan --no-update --no-interaction --no-audit; fi
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev --no-audit
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-audit
 
