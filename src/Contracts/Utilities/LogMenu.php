@@ -44,7 +44,7 @@ interface LogMenu
      * Make log menu.
      *
      * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array{name: string, count: int, url: string, icon: string}>
      */
     public function make(Log $log, $trans = true);
 }

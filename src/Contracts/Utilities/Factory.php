@@ -132,26 +132,15 @@ interface Factory extends Patternable
      */
     public function total($level = 'all');
 
-    /**
-     * Get tree menu.
-     *
-     * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array<string, array{name: string, count: int}>>
      */
     public function tree($trans = false);
 
-    /**
-     * Get tree menu.
-     *
-     * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array<string, array{name: string, count: int, url: string, icon: string}>>
      */
     public function menu($trans = true);
 
-    /**
-     * Get logs statistics.
-     *
-     * @return array<string, mixed>
+     * @return array<string, array<string, int>>
      */
     public function stats();
 

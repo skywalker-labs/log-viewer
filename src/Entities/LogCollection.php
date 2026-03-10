@@ -154,7 +154,7 @@ class LogCollection extends LazyCollection
     /**
      * Get logs statistics.
      *
-     * @return array<string, mixed>
+     * @return array<string, array<string, int>>
      */
     public function stats()
     {
@@ -198,7 +198,7 @@ class LogCollection extends LazyCollection
      * Get logs tree.
      *
      * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array<string, array{name: string, count: int}>>
      */
     public function tree($trans = false)
     {
@@ -216,7 +216,7 @@ class LogCollection extends LazyCollection
      * Get logs menu.
      *
      * @param  bool  $trans
-     * @return array<string, mixed>
+     * @return array<string, array<string, array{name: string, count: int, url: string, icon: string}>>
      */
     public function menu($trans = true)
     {
