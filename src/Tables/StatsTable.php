@@ -40,7 +40,7 @@ class StatsTable extends AbstractTable
      * Prepare table header.
      *
      * @param  array<string, mixed>  $data
-     * @return array<int, mixed>
+     * @return array<string, string>
      */
     protected function prepareHeader(array $data): array
     {
@@ -60,7 +60,7 @@ class StatsTable extends AbstractTable
      * Prepare table rows.
      *
      * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
+     * @return array<string, array<string, int|string>>
      */
     protected function prepareRows(array $data): array
     {
@@ -80,7 +80,7 @@ class StatsTable extends AbstractTable
      * Prepare table footer.
      *
      * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
+     * @return array<string, int>
      */
     protected function prepareFooter(array $data): array
     {
@@ -109,7 +109,7 @@ class StatsTable extends AbstractTable
      * Get totals.
      *
      * @param  string|null  $locale
-     * @return \Illuminate\Support\Collection<string, array<string, mixed>>
+     * @return \Illuminate\Support\Collection<string, array{label: string, value: int, color: string, highlight: string}>
      */
     public function totals($locale = null)
     {

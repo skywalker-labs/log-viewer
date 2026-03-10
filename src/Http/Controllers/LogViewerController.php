@@ -495,7 +495,7 @@ class LogViewerController extends Controller
     /**
      * Get recent audit logs.
      *
-     * @return array<int, mixed>
+     * @return array<int, array<string, mixed>>
      */
     protected function getAuditLogs(): array
     {
