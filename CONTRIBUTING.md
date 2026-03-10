@@ -1,34 +1,46 @@
-# CONTRIBUTING
+# Contributing to LogViewer
 
-Contributions are welcome, and are accepted via pull requests. Please review these guidelines before submitting any pull requests.
+Thank you for considering contributing to LogViewer! To ensure the project remains high-quality and maintainable, please follow these guidelines.
 
-## Guidelines
+## Code of Conduct
 
-- Please follow the [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) Coding Standard, PHP-FIG Naming Conventions and the [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md) autoloading standard
-- Ensure that the current tests pass, and if you've added something new, add the tests where relevant.
-- Remember that we follow SemVer. If you are changing the behaviour, or the public api, you may need to update the docs.
-- Send a coherent commit history, making sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please squash them before submitting.
-- You may also need to rebase to avoid merge conflicts.
-- **Translations :**
-  - After you made your translations, ensure that you added your locale key in alphabetical order at [line](https://github.com/Ermradulsharma/LogViewer/blob/master/tests/TestCase.php#L29) in the `tests/TestCase.php` file for the tests.
-  - The locale key must be a [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes), check also [caouecs/Laravel-lang package](https://github.com/caouecs/Laravel-lang/).
+This project and everyone participating in it is governed by the [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-## Running Tests
+## How Can I Contribute?
 
-You will need an install of [Composer](https://getcomposer.org) before continuing.
+### Reporting Bugs
+- Use the **Bug Report** template when opening an issue.
+- Provide a clear, descriptive title.
+- Include steps to reproduce, expected behavior, and actual behavior.
+- Attach screenshots if applicable.
 
-First, install the dependencies:
+### Suggesting Enhancements
+- Use the **Feature Request** template.
+- Explain why this enhancement would be useful to most users.
 
+### Pull Requests
+1. Fork the repository and create your branch from `main`.
+2. Install dependencies: `composer install`.
+3. If you've added code that should be tested, add tests.
+4. Ensure the test suite passes: `composer test`.
+5. Run static analysis: `vendor/bin/phpstan analyse`.
+6. Follow the PSR-12 coding standard (enforced via Laravel Pint).
+7. Write a descriptive pull request message.
+
+## Style Guide
+
+We use **Laravel Pint** to maintain a consistent code style. Before committing, please run:
 ```bash
-$ composer install
+vendor/bin/pint
 ```
 
-Then run phpunit:
+## Static Analysis
 
+We enforce **PHPStan Level 9**. Ensure your changes do not introduce type-safety regressions:
 ```bash
-$ vendor/bin/phpunit
+vendor/bin/phpstan analyse
 ```
 
-If the test suite passes on your local machine you should be good to go.
+## Financial Contributions
 
-When you make a pull request, the tests will automatically be run again by [Travis CI](https://travis-ci.org/).
+If you find LogViewer useful, consider [sponsoring the project](https://github.com/sponsors/ermradulsharma).

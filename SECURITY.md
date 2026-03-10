@@ -2,20 +2,22 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Only the latest major version of LogViewer receives security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 1.x     | :white_check_mark: |
+| < 1.0   | :x:                |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+If you discover a security vulnerability within LogViewer, please send an e-mail to Skywalker Labs Team via [skywalkerlknw@gmail.com](mailto:skywalkerlknw@gmail.com). All security vulnerabilities will be promptly addressed.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Please include the following in your report:
+- Type of issue (e.g., XSS, SQLi, RCE)
+- Full paths of source file(s) related to the manifestation of the issue
+- The location of the affected code
+- A proof of concept or steps to reproduce
+- Impact of the vulnerability
+
+We ask you not to disclose the vulnerability publicly until we have had a chance to address it.
