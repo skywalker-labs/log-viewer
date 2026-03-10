@@ -89,7 +89,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev
+          composer config audit.block-insecure false || true
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev --no-audit
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-audit
 
       - name: Execute tests
