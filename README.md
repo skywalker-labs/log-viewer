@@ -3,10 +3,10 @@
 # 🛠️ LogViewer: Enterprise Multi-Channel Intelligence
 ### *Ultra-High Performance Log Management for Laravel 12+*
 
-[![Version](https://img.shields.io/github/v/release/skywalker-labs/log-viewer?style=for-the-badge)](https://github.com/skywalker-labs/log-viewer/releases)
+![Version](https://img.shields.io/github/v/release/skywalker-labs/log-viewer?style=for-the-badge)
 [![Total Downloads](https://img.shields.io/packagist/dt/skywalker-labs/log-viewer.svg?style=for-the-badge)](https://packagist.org/packages/skywalker-labs/log-viewer)
 [![PHPStan Level 9](https://img.shields.io/badge/PHPStan-Level%209-brightgreen.svg?style=for-the-badge)](https://phpstan.org)
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue.svg?style=for-the-badge)](https://www.php.net/)
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue.svg?style=for-the-badge)](https://www.php.net/)
 [![License](https://img.shields.io/packagist/l/skywalker-labs/log-viewer.svg?style=for-the-badge)](LICENSE.md)
 [![Security Policy](https://img.shields.io/badge/security-policy-brightgreen.svg?style=for-the-badge)](SECURITY.md)
 
