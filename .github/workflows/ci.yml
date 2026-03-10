@@ -99,4 +99,5 @@ jobs:
         run: vendor/bin/phpunit --colors=always
 
       - name: Static Analysis
+        if: matrix.php >= 8.2
         run: vendor/bin/phpstan analyse src --level 9
