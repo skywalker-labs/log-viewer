@@ -106,7 +106,7 @@ class LogEntryCollection extends LazyCollection
      * Get the log entries navigation tree.
      *
      * @param  bool|false  $trans
-     * @return array<string, mixed>
+     * @return array<string, array{name: string, count: int}>
      */
     public function tree($trans = false)
     {

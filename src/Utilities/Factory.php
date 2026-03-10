@@ -143,7 +143,7 @@ class Factory implements FactoryContract
     /**
      * Get all logs.
      *
-     * @return \Skywalker\LogViewer\Entities\LogCollection
+     * @return \Skywalker\LogViewer\Entities\LogCollection<string, \Skywalker\LogViewer\Entities\Log>
      */
     public function logs()
     {
@@ -160,7 +160,7 @@ class Factory implements FactoryContract
      *
      * @see logs
      *
-     * @return \Skywalker\LogViewer\Entities\LogCollection
+     * @return \Skywalker\LogViewer\Entities\LogCollection<string, \Skywalker\LogViewer\Entities\Log>
      */
     public function all()
     {
@@ -215,7 +215,7 @@ class Factory implements FactoryContract
      *
      * @param  string  $date
      * @param  string  $level
-     * @return \Skywalker\LogViewer\Entities\LogEntryCollection
+     * @return \Skywalker\LogViewer\Entities\LogEntryCollection<int, \Skywalker\LogViewer\Entities\LogEntry>
      */
     public function entries($date, $level = 'all')
     {

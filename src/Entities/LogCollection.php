@@ -141,7 +141,7 @@ class LogCollection extends LazyCollection
      *
      * @param  string  $date
      * @param  string  $level
-     * @return \Skywalker\LogViewer\Entities\LogEntryCollection
+     * @return \Skywalker\LogViewer\Entities\LogEntryCollection<int, \Skywalker\LogViewer\Entities\LogEntry>
      */
     public function entries($date, $level = 'all')
     {

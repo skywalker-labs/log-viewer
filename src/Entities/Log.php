@@ -144,7 +144,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get log entries.
      *
      * @param  string  $level
-     * @return \Skywalker\LogViewer\Entities\LogEntryCollection
+     * @return \Skywalker\LogViewer\Entities\LogEntryCollection<int, \Skywalker\LogViewer\Entities\LogEntry>
      */
     public function entries($level = 'all')
     {
@@ -157,7 +157,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      * Get filtered log entries by level.
      *
      * @param  string  $level
-     * @return \Skywalker\LogViewer\Entities\LogEntryCollection
+     * @return \Skywalker\LogViewer\Entities\LogEntryCollection<int, \Skywalker\LogViewer\Entities\LogEntry>
      */
     public function getByLevel($level)
     {
