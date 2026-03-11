@@ -19,7 +19,9 @@ class SearchLogsAction extends Action
      */
     public function __construct(?LogViewer $logViewer = null)
     {
-        $this->logViewer = $logViewer ?? app(LogViewer::class);
+        /** @var LogViewer $instance */
+        $instance = $logViewer ?? app(LogViewer::class);
+        $this->logViewer = $instance;
     }
 
     /**
