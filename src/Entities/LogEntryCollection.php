@@ -50,7 +50,7 @@ class LogEntryCollection extends LazyCollection
      * Paginate log entries.
      *
      * @param  int  $perPage
-     * @return \Illuminate\Pagination\LengthAwarePaginator<int, mixed>
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, \Skywalker\LogViewer\Entities\LogEntry>
      */
     public function paginate($perPage = 20)
     {

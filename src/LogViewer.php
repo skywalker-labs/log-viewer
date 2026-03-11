@@ -266,9 +266,11 @@ class LogViewer implements LogViewerContract
 
     /**
      * List the log files (only dates).
+     *
+     * @return array<int, string>
      */
     public function dates(): array
-    {
+   {
         return $this->factory->dates();
     }
 

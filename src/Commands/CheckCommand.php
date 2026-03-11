@@ -49,7 +49,10 @@ class CheckCommand extends Command
      */
     protected function getChecker(): LogCheckerContract
     {
-        return app(LogCheckerContract::class);
+        /** @var LogCheckerContract $checker */
+        $checker = app(LogCheckerContract::class);
+
+        return $checker;
     }
 
     /* -----------------------------------------------------------------

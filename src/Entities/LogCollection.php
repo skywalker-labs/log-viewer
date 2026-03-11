@@ -37,7 +37,10 @@ class LogCollection extends LazyCollection
      */
     public function __construct($source = null)
     {
-        $this->setFilesystem(app(FilesystemContract::class));
+        /** @var FilesystemContract $filesystem */
+        $filesystem = app(FilesystemContract::class);
+
+        $this->setFilesystem($filesystem);
 
         if (is_null($source)) {
             $source = function () {
@@ -104,9 +107,12 @@ class LogCollection extends LazyCollection
      */
     public function paginate($perPage = 30)
     {
-        $page = request()->get('page', 1);
+        /** @var \Illuminate\Http\Request $request */
+        $request = request();
+
+        $page = $request->get('page', 1);
         $page = is_numeric($page) ? (int) $page : 1;
-        $path = request()->url();
+        $path = $request->url();
 
         /** @var array<int, Log> $items */
         $items = array_values($this->forPage($page, $perPage)->all());

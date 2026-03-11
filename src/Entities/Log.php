@@ -208,10 +208,13 @@ class Log implements Arrayable, Jsonable, JsonSerializable
      */
     public function toArray()
     {
+        /** @var array<int, array<string, mixed>> $entries */
+        $entries = $this->entries->toArray();
+
         return [
             'date' => $this->date,
             'path' => $this->path,
-            'entries' => $this->entries->toArray(),
+            'entries' => $entries,
         ];
     }
 
