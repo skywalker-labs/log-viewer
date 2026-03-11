@@ -1,6 +1,13 @@
 name: run-tests
 
-on: [push, pull_request]
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
@@ -9,8 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        php: [8.4] # Placeholder, will be overridden by include
-        laravel: [12.*] # Placeholder, will be overridden by include
+        php: [8.4]
+        laravel: [12.*]
         dependency-version: [prefer-stable]
         include:
           # Laravel 12
@@ -132,15 +139,32 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
           coverage: none
 
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
       - name: Install dependencies
         run: |
           composer config allow-plugins.kylekatarnls/update-helper true
-          composer config audit.block-insecure false
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update --dev -W
-          if [ "$(php -r 'echo (int) (PHP_VERSION_ID < 80000);')" == "1" ]; then
-            composer remove laravel/pint --dev --no-update
+          composer config audit.block-insecure false || true
+          
+          # Pint requires PHP 8.1+
+          if [ "$(php -r 'echo (PHP_VERSION_ID < 80100) ? 1 : 0;')" == "1" ]; then
+            composer remove --dev laravel/pint --no-update --no-interaction --no-audit
           fi
-          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+          
+          # PHPStan requires PHP 8.2+ for our current constraints
+          if [ "$(php -r 'echo (PHP_VERSION_ID < 80200) ? 1 : 0;')" == "1" ]; then
+            composer remove --dev phpstan/phpstan --no-update --no-interaction --no-audit
+          fi
+
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update --dev -W --no-audit
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-audit
 
       - name: Execute tests
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --colors=always
+
+      - name: Static Analysis
+        if: matrix.php >= 8.2
+        run: vendor/bin/phpstan analyse src --level 9
