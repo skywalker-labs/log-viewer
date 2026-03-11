@@ -50,7 +50,7 @@ class AlertCommand extends Command
         $allFoundEntries = [];
 
         foreach ($severities as $level) {
-            /** @var \Skywalker\LogViewer\Entities\LogEntryCollection $entries */
+            /** @var \Skywalker\LogViewer\Entities\LogEntryCollection<int, \Skywalker\LogViewer\Entities\LogEntry> $entries */
             $entries = $log->entries($level)->filter(function (\Skywalker\LogViewer\Entities\LogEntry $entry) use ($threshold) {
                 return $entry->datetime->gt($threshold);
             });
