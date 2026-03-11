@@ -1364,7 +1364,7 @@ class LogViewerController extends Controller
         if (in_array('*', $allowedActions) || in_array($action, $allowedActions)) {
             // Enhance with Zero Trust check if configured
             if (config('log-viewer.security.zero_trust.enabled', true)) {
-                $score = $this->trustEngine->calculateScore(request()->user());
+                $score = $this->trustEngine->calculateScore(Auth::user());
                 $rawThreshold = config('log-viewer.security.zero_trust.threshold', 0.5);
                 $threshold = is_numeric($rawThreshold) ? (float) $rawThreshold : 0.5;
 

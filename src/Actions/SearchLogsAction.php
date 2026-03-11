@@ -17,22 +17,28 @@ class SearchLogsAction extends Action
     /**
      * Create a new action instance.
      */
-    public function __construct(LogViewer $logViewer)
+    public function __construct(?LogViewer $logViewer = null)
     {
-        $this->logViewer = $logViewer;
+        $this->logViewer = $logViewer ?? app(LogViewer::class);
     }
 
     /**
      * Execute the action.
      *
-     * @param  string  $date
-     * @param  string  $level
-     * @param  string|null  $query
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @param  mixed  ...$args
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, \Skywalker\LogViewer\Entities\LogEntry>
      */
     public function execute(...$args)
     {
-        [$date, $level, $query] = $args;
+        /** @var string $date */
+        $date = $args[0] ?? '';
+        /** @var string $level */
+        $level = $args[1] ?? 'all';
+        /** @var string|null $query */
+        $query = $args[2] ?? null;
+
+        /** @var int $perPage */
+        $perPage = config('log-viewer.per-page', 30);
 
         return $this->logViewer->entries($date, $level)
             ->filter(function ($entry) use ($query) {
@@ -40,9 +46,13 @@ class SearchLogsAction extends Action
                     return true;
                 }
 
-                return str_contains(strtolower($entry->header), strtolower($query)) ||
-                       str_contains(strtolower($entry->stack), strtolower($query));
+                /** @var string $query */
+                $queryLower = strtolower($query);
+
+                /** @var \Skywalker\LogViewer\Entities\LogEntry $entry */
+                return str_contains(strtolower((string) $entry->header), $queryLower) ||
+                       str_contains(strtolower((string) $entry->stack), $queryLower);
             })
-            ->paginate(config('log-viewer.per-page', 30));
+            ->paginate($perPage);
     }
 }
