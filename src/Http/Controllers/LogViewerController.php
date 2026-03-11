@@ -614,7 +614,6 @@ class LogViewerController extends Controller
             $results->count(),
             $this->perPage,
             $page,
-            $page,
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
