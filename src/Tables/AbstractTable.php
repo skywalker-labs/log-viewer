@@ -90,6 +90,9 @@ abstract class AbstractTable implements TableContract
         return $this;
     }
 
+    /**
+     * Get table header.
+     *
      * @return array<string|int, mixed>
      */
     public function header()
@@ -155,6 +158,10 @@ abstract class AbstractTable implements TableContract
         $this->footer = $this->prepareFooter($this->data);
     }
 
+    /**
+     * Prepare table header.
+     *
+     * @param  array<string, mixed>  $data
      * @return array<string|int, mixed>
      */
     abstract protected function prepareHeader(array $data);

@@ -110,6 +110,9 @@ interface Factory extends Patternable
      */
     public function entries($date, $level = 'all');
 
+    /**
+     * Get log dates.
+     *
      * @return array<int, string>|array<string, string>
      */
     public function dates();
