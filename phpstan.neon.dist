@@ -8,6 +8,7 @@ parameters:
         - config
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         # Laravel's view()->make() returns Contracts\View\View — identical to View\View at runtime
         -
