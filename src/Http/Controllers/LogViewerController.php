@@ -777,7 +777,7 @@ class LogViewerController extends Controller
         $logs = $this->logViewer->all()->take(7);
         foreach ($logs as $log) {
             $entries = $log->entries()->filter(function (LogEntry $entry) {
-                return preg_match('/(?:execution|query|request|db|sql|api) (?:took|time|latency)[:]?\s+([\d.]+)\s*(ms|s)/i', $entry->header, $matches)
+                return preg_match('/(?:execution|query|request|db|sql|api) (?:took|time|latency)[:]?\s+([\d.]+)\s*(ms|s)/i', (string) $entry->header, $matches)
                     || preg_match('/slow query/i', $entry->header)
                     || preg_match('/memory (?:limit|usage)[:]?\s+([\d.]+)\s*(MB|GB)/i', $entry->header);
             });
@@ -1177,8 +1177,8 @@ class LogViewerController extends Controller
         return [
             'total' => array_sum($stats),
             'levels' => $stats,
-            'patterns' => $log->entries()->map(function ($entry) {
-                $cleaned = preg_replace(['/\d+/', '/\'[^\']*\'/', '/"[^"]*"/', '/\[.*?\]/'], ['N', "'S'", '"S"', ''], $entry->header);
+            'patterns' => $log->entries()->map(function (LogEntry $entry) {
+                $cleaned = preg_replace(['/\d+/', '/\'[^\']*\'/', '/"[^"]*"/', '/\[.*?\]/'], ['N', "'S'", '"S"', ''], (string) $entry->header);
 
                 return md5(is_string($cleaned) ? $cleaned : '');
             })->unique()->values()->toArray(),

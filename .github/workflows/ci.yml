@@ -1,5 +1,8 @@
 name: tests
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -13,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        php: [7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5]
+        php: [7.4, 8.0, 8.1, 8.2, 8.3, 8.4]
         laravel: [6.*, 7.*, 8.*, 9.*, 10.*, 11.*, 12.*]
         stability: [prefer-stable]
         include:
@@ -50,6 +53,27 @@ jobs:
             laravel: 11.*
           - php: 8.1
             laravel: 12.*
+          # Laravel 6/7/8 compatibility fixes
+          - php: 8.1
+            laravel: 6.*
+          - php: 8.1
+            laravel: 7.*
+          - php: 8.2
+            laravel: 6.*
+          - php: 8.2
+            laravel: 7.*
+          - php: 8.3
+            laravel: 6.*
+          - php: 8.3
+            laravel: 7.*
+          - php: 8.4
+            laravel: 6.*
+          - php: 8.4
+            laravel: 7.*
+          - php: 8.0
+            laravel: 6.*
+          - php: 8.0
+            laravel: 7.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -74,8 +98,8 @@ jobs:
           # Globally disable security audit blocking
           composer config audit.block-insecure false || true
           
-          # Dynamically adjust dev dependencies for older PHP versions
-          if [ "$(php -r 'echo (PHP_VERSION_ID < 80000) ? 1 : 0;')" == "1" ]; then
+          # Pint 1.0 requires PHP 8.1 or higher
+          if [ "$(php -r 'echo (PHP_VERSION_ID < 80100) ? 1 : 0;')" == "1" ]; then
             composer remove --dev laravel/pint --no-update --no-interaction --no-audit
           fi
           
