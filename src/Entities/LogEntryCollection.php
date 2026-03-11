@@ -13,7 +13,8 @@ use Skywalker\LogViewer\Helpers\LogParser;
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  *
- * @phpstan-extends   LazyCollection<int, LogEntry>
+ * @phpstan-extends   LazyCollection
+ * @phpstan-implements \IteratorAggregate<int, LogEntry>
  */
 class LogEntryCollection extends LazyCollection
 {

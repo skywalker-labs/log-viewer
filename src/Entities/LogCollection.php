@@ -14,7 +14,8 @@ use Skywalker\LogViewer\Exceptions\LogNotFoundException;
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  *
- * @phpstan-extends LazyCollection<string, Log>
+ * @phpstan-extends   LazyCollection
+ * @phpstan-implements \IteratorAggregate<string, Log>
  */
 class LogCollection extends LazyCollection
 {
@@ -63,8 +64,8 @@ class LogCollection extends LazyCollection
     /**
      * Set the filesystem instance.
      *
-     *
-     * @return \Skywalker\LogViewer\Entities\LogCollection
+     * @param  FilesystemContract  $filesystem
+     * @return $this
      */
     public function setFilesystem(FilesystemContract $filesystem)
     {

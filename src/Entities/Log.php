@@ -15,7 +15,7 @@ use SplFileInfo;
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  *
- * @phpstan-implements Arrayable<string, mixed>
+ * @phpstan-implements Arrayable
  */
 class Log implements Arrayable, Jsonable, JsonSerializable
 {

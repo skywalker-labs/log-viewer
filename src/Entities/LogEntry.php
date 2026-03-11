@@ -15,7 +15,7 @@ use Skywalker\LogViewer\Helpers\LogParser;
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  *
- * @phpstan-implements Arrayable<string, mixed>
+ * @phpstan-implements Arrayable
  */
 class LogEntry implements Arrayable, Jsonable, JsonSerializable
 {
