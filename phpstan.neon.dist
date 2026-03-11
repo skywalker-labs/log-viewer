@@ -25,3 +25,8 @@ parameters:
         -
             identifier: return.type
             path: src/Entities/LogEntryCollection.php
+        # Laravel 8 non-generic interface ignores
+        -
+            identifier: generics.notCompatible
+        -
+            identifier: generics.notGeneric
