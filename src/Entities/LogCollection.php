@@ -14,7 +14,7 @@ use Skywalker\LogViewer\Exceptions\LogNotFoundException;
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  *
- * @extends LazyCollection<string, Log>
+ * @phpstan-extends LazyCollection<string, Log>
  */
 class LogCollection extends LazyCollection
 {

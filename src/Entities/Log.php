@@ -28,6 +28,7 @@ class Log implements Arrayable, Jsonable, JsonSerializable
 
     private string $path;
 
+    /** @var LogEntryCollection<int, LogEntry> */
     private LogEntryCollection $entries;
 
     private \SplFileInfo $file;
