@@ -315,38 +315,36 @@ class Filesystem extends ToolkitFilesystem implements FilesystemContract
      */
     private function getLogPath(string $date)
     {
-        if (preg_match('/(.+) \((.+)\)$/', $date, $matches)) {
-            $date = $matches[1];
-            $filename = $matches[2];
-            $path = $this->storagePath.DIRECTORY_SEPARATOR.$filename.$this->extension;
-
-            if ($this->exists($path)) {
-                $real = realpath($path);
-                if (is_string($real)) {
-                    return $real;
-                }
-            }
-        }
-
-        $path = $this->storagePath.DIRECTORY_SEPARATOR.$this->prefixPattern.$date.$this->extension;
+        $path = $this->resolvePath($date);
 
         if ($this->exists($path)) {
             $real = realpath($path);
-            if (is_string($real)) {
-                return $real;
-            }
-        }
-
-        // Try to check if date is the filename
-        $path = $this->storagePath.DIRECTORY_SEPARATOR.$date;
-
-        if ($this->exists($path)) {
-            $real = realpath($path);
-            if (is_string($real)) {
+            $base = realpath($this->storagePath);
+            if (is_string($real) && is_string($base) && str_starts_with($real, $base)) {
                 return $real;
             }
         }
 
         throw FilesystemException::invalidPath($path);
+    }
+
+    /**
+     * Resolve the log path based on date or filename.
+     */
+    private function resolvePath(string $date): string
+    {
+        if (preg_match('/(.+) \((.+)\)$/', $date, $matches)) {
+            $filename = $matches[2];
+
+            return $this->storagePath.DIRECTORY_SEPARATOR.$filename.$this->extension;
+        }
+
+        $path = $this->storagePath.DIRECTORY_SEPARATOR.$this->prefixPattern.$date.$this->extension;
+
+        if ($this->exists($path)) {
+            return $path;
+        }
+
+        return $this->storagePath.DIRECTORY_SEPARATOR.$date;
     }
 }

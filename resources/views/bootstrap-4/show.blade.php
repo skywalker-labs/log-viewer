@@ -138,7 +138,7 @@
                                 </span>
                             </td>
                             <td>
-                                {{ $entry->header }}
+                                <span class="log-entry-content">{{ $entry->header }}</span>
                             </td>
                             <td class="text-right">
                                 @if ($entry->hasStack())
@@ -219,8 +219,40 @@
 @endsection
 
 @section('scripts')
+<script id="log-viewer-data" type="application/json">
+    {!! json_encode([
+        'query' => (string) ($query ?? ''),
+        'highlights' => log_styler()->toHighlight()
+    ]) !!}
+</script>
+
 <script>
     $(function() {
+        const dataElement = document.getElementById('log-viewer-data');
+        if (!dataElement) return;
+
+        const data = JSON.parse(dataElement.textContent || '{}');
+        const query = data.query;
+        const highlights = data.highlights;
+
+        if (query) {
+            $('.log-entry-content').each(function() {
+                const $el = $(this);
+                const text = $el.text();
+                const regex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
+                $el.html(text.replace(regex, '<mark>$1</mark>'));
+            });
+        }
+
+        if (Array.isArray(highlights) && highlights.length > 0) {
+            const pattern = new RegExp('(' + highlights.join('|') + ')', 'gm');
+            $('.stack-content').each(function() {
+                const $el = $(this);
+                const html = $el.html().trim();
+                $el.html(html.replace(pattern, '<strong>$1</strong>'));
+            });
+        }
+
         var deleteLogModal = $('div#delete-log-modal'),
             deleteLogForm = $('form#delete-log-form'),
             submitBtn = deleteLogForm.find('button[type=submit]');
@@ -252,22 +284,6 @@
 
             return false;
         });
-
-        @unless(empty(log_styler() - > toHighlight()))
-        @php
-        $htmlHighlight = version_compare(PHP_VERSION, '7.4.0') >= 0 ?
-            join('|', log_styler() - > toHighlight()) :
-            join(log_styler() - > toHighlight(), '|');
-        @endphp
-
-        $('.stack-content').each(function() {
-            var $this = $(this);
-            var html = $this.html().trim()
-                .replace(/({!! $htmlHighlight !!})/gm, '<strong>$1</strong>');
-
-            $this.html(html);
-        });
-        @endunless
     });
 </script>
 @endsection

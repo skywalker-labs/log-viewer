@@ -15,6 +15,8 @@ use Skywalker\LogViewer\Entities\LogEntry;
 use Skywalker\LogViewer\Exceptions\LogNotFoundException;
 use Skywalker\LogViewer\LogViewer;
 use Skywalker\LogViewer\Tables\StatsTable;
+use Skywalker\Support\Security\ZeroTrust\TrustEngine;
+use Skywalker\LogViewer\Actions\SearchLogsAction;
 
 /**
  * Class     LogViewerController
@@ -33,6 +35,16 @@ class LogViewerController extends Controller
      */
     protected LogViewerContract $logViewer;
 
+    /**
+     * The trust engine instance.
+     */
+    protected TrustEngine $trustEngine;
+
+    /**
+     * The SearchLogsAction instance.
+     */
+    protected SearchLogsAction $searchLogsAction;
+
     protected int $perPage = 30;
 
     protected string $showRoute = 'log-viewer::logs.show';
@@ -45,9 +57,15 @@ class LogViewerController extends Controller
     /**
      * LogViewerController constructor.
      */
-    public function __construct(LogViewerContract $logViewer)
-    {
+    public function __construct(
+        LogViewerContract $logViewer,
+        TrustEngine $trustEngine,
+        SearchLogsAction $searchLogsAction
+    ) {
         $this->logViewer = $logViewer;
+        $this->trustEngine = $trustEngine;
+        $this->searchLogsAction = $searchLogsAction;
+
         $perPage = config('log-viewer.per-page', $this->perPage);
         $this->perPage = is_numeric($perPage) ? (int) $perPage : $this->perPage;
         $showRoute = config('log-viewer.route.show', $this->showRoute);
@@ -167,7 +185,7 @@ class LogViewerController extends Controller
         $level = 'all';
         $log = $this->getLogOrFail($date);
         /** @var string|null $query */
-        $query = $request->get('query');
+        $query = $request->input('query');
         $levels = $this->logViewer->levelsNames();
         $group = $request->boolean('group');
 
@@ -200,7 +218,7 @@ class LogViewerController extends Controller
 
         $log = $this->getLogOrFail($date);
         /** @var string|null $query */
-        $query = $request->get('query');
+        $query = $request->input('query');
         $levels = $this->logViewer->levelsNames();
         $group = $request->boolean('group');
 
@@ -250,7 +268,7 @@ class LogViewerController extends Controller
         $collection = collect($grouped)->sortByDesc('count');
         /** @var \Illuminate\Http\Request $request */
         $request = request();
-        $page = $request->get('page', 1);
+        $page = $request->input('page', 1);
         $page = is_numeric($page) ? (int) $page : 1;
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator<int, mixed> $paginator */
@@ -275,7 +293,7 @@ class LogViewerController extends Controller
 
         $log = $this->logViewer->get($date);
         /** @var string|null $query */
-        $query = $request->get('query');
+        $query = $request->input('query');
         $isRegex = $request->boolean('regex');
 
         $entries = $log->entries($level)
@@ -342,7 +360,7 @@ class LogViewerController extends Controller
     {
         $this->authorizeAction('view_logs');
         /** @var string|null $query */
-        $query = $request->get('query');
+        $query = $request->input('query');
         $isRegex = $request->boolean('regex');
 
         if (is_null($query)) {
@@ -424,7 +442,7 @@ class LogViewerController extends Controller
     public function bulkDelete(Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->authorizeAction('delete_logs');
-        $dates = $request->get('dates', []);
+        $dates = $request->input('dates', []);
         $this->recordAction('bulk_delete_logs', ['dates' => $dates]);
 
         if (is_array($dates)) {
@@ -539,7 +557,7 @@ class LogViewerController extends Controller
     {
         /** @var \Illuminate\Support\Collection<int, mixed> $collected */
         $collected = collect(is_array($data) ? $data : iterator_to_array($data));
-        $page = $request->get('page', 1);
+        $page = $request->input('page', 1);
         $page = is_numeric($page) ? (int) $page : 1;
         $path = $request->url();
 
@@ -562,59 +580,28 @@ class LogViewerController extends Controller
     {
         $this->authorizeAction('view_logs');
         /** @var string|null $query */
-        $query = $request->get('query');
+        $query = $request->input('query');
         $this->recordAction('global_search', ['query' => $query ?? '']);
-        $isRegex = $request->boolean('regex');
+        /** @var \Illuminate\Support\Collection<int, array{date: string, entry: \Skywalker\LogViewer\Entities\LogEntry}> $results */
         $results = collect();
 
         if (! empty($query)) {
             $logs = $this->logViewer->all();
             foreach ($logs as $log) {
-                $entries = $log->entries()->filter(function (LogEntry $entry) use ($query, $isRegex) {
-                    $subjects = [$entry->header, $entry->stack, $entry->context()];
-                    if ($isRegex) {
-                        try {
-                            foreach ($subjects as $subject) {
-                                if (preg_match("/$query/i", $subject)) {
-                                    return true;
-                                }
-                            }
-                        } catch (\Exception $e) {
-                            return false;
-                        }
-
-                        return false;
-                    }
-                    $needles = array_map(function ($needle) {
-                        return Str::lower($needle);
-                    }, array_filter(explode(' ', $query)));
-                    foreach ($subjects as $subject) {
-                        if (Str::containsAll(Str::lower($subject), $needles)) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
-
-                foreach ($entries as $entry) {
+                $paginator = $this->searchLogsAction->execute($log->date, 'all', $query);
+                foreach ($paginator->items() as $entry) {
+                    /** @var \Skywalker\LogViewer\Entities\LogEntry $entry */
                     $results->push(['date' => $log->date, 'entry' => $entry]);
                 }
             }
         }
 
         $results = $results->sortByDesc(function ($item) {
+            /** @var array{date: string, entry: \Skywalker\LogViewer\Entities\LogEntry} $item */
             return $item['entry']->datetime;
         });
-        $page = $request->get('page', 1);
-        $page = is_numeric($page) ? (int) $page : 1;
-        $entries = new LengthAwarePaginator(
-            array_values($results->forPage($page, $this->perPage)->all()),
-            $results->count(),
-            $this->perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+
+        $entries = $this->paginate($results, $request);
 
         return $this->view('global-search', compact('query', 'entries'));
     }
@@ -627,30 +614,26 @@ class LogViewerController extends Controller
         $this->authorizeAction('view_logs');
         $this->recordAction('view_journey', ['correlation_id' => $id]);
 
+        /** @var \Illuminate\Support\Collection<int, array{date: string, entry: \Skywalker\LogViewer\Entities\LogEntry}> $results */
         $results = collect();
         $logs = $this->logViewer->all();
 
         foreach ($logs as $log) {
-            $entries = $log->entries()->filter(function (LogEntry $entry) use ($id) {
-                return $entry->correlationId === $id;
-            });
-            foreach ($entries as $entry) {
-                $results->push(['date' => $log->date, 'entry' => $entry]);
+            $paginator = $this->searchLogsAction->execute($log->date, 'all', $id);
+            foreach ($paginator->items() as $entry) {
+                /** @var \Skywalker\LogViewer\Entities\LogEntry $entry */
+                if ($entry->correlationId === $id) {
+                    $results->push(['date' => $log->date, 'entry' => $entry]);
+                }
             }
         }
 
         $results = $results->sortByDesc(function ($item) {
+            /** @var array{date: string, entry: \Skywalker\LogViewer\Entities\LogEntry} $item */
             return $item['entry']->datetime;
         });
-        $page = $request->get('page', 1);
-        $page = is_numeric($page) ? (int) $page : 1;
-        $entries = new LengthAwarePaginator(
-            array_values($results->forPage($page, $this->perPage)->all()),
-            $results->count(),
-            $this->perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+
+        $entries = $this->paginate($results, $request);
 
         $query = $id;
 
@@ -680,9 +663,9 @@ class LogViewerController extends Controller
     {
         $this->authorizeAction('view_logs');
         /** @var string $date */
-        $date = $request->get('date', now()->format('Y-m-d'));
+        $date = $request->input('date', now()->format('Y-m-d'));
         /** @var int|null $offset */
-        $offset = $request->get('offset');
+        $offset = $request->input('offset');
 
         try {
             $log = $this->logViewer->get($date);
@@ -1068,7 +1051,7 @@ class LogViewerController extends Controller
     {
         $this->authorizeAction('ai_analysis');
         /** @var string $message */
-        $message = $request->get('message', '');
+        $message = $request->input('message', '');
         $analysis = [
             'Class ".*" not found' => [
                 'reason' => 'PHP attempted to call a class that hasn\'t been loaded, likely due to a missing import or autoloader issue.',
@@ -1143,8 +1126,8 @@ class LogViewerController extends Controller
         $this->authorizeAction('compare_logs');
         $this->recordAction('compare_logs');
         $dates = $this->logViewer->dates();
-        $date1 = $request->get('date1', $dates[1] ?? ($dates[0] ?? null));
-        $date2 = $request->get('date2', $dates[0] ?? null);
+        $date1 = $request->input('date1', $dates[1] ?? ($dates[0] ?? null));
+        $date2 = $request->input('date2', $dates[0] ?? null);
         $date1 = is_string($date1) ? $date1 : null;
         $date2 = is_string($date2) ? $date2 : null;
         $stats1 = $date1 !== null ? $this->getStatsByDate($date1) : null;
@@ -1273,7 +1256,7 @@ class LogViewerController extends Controller
     public function downloadReport(Request $request): \Illuminate\View\View
     {
         $this->authorizeAction('view_dashboard');
-        $this->recordAction('download_report', ['type' => $request->get('type', 'summary')]);
+        $this->recordAction('download_report', ['type' => $request->input('type', 'summary')]);
 
         $stats = $this->logViewer->statsTable();
         /** @var array<string, mixed> $header */
@@ -1328,15 +1311,15 @@ class LogViewerController extends Controller
             'summary' => 'required|string',
         ]);
 
-        $this->recordAction('push_to_tracker', ['type' => $request->get('type'), 'header' => $request->get('header')]);
+        $this->recordAction('push_to_tracker', ['type' => $request->input('type'), 'header' => $request->input('header')]);
 
         /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
         $factory = response();
 
         return $factory->json([
             'success' => true,
-            'message' => 'Log entry successfully pushed to '.ucfirst(is_string($request->get('type')) ? $request->get('type') : ''),
-            'issue_id' => ($request->get('type') === 'jira' ? 'LOG-' : 'ISSUE-').rand(1000, 9999),
+            'message' => 'Log entry successfully pushed to '.ucfirst(is_string($request->input('type')) ? $request->input('type') : ''),
+            'issue_id' => ($request->input('type') === 'jira' ? 'LOG-' : 'ISSUE-').rand(1000, 9999),
             'url' => '#',
         ]);
     }
@@ -1419,7 +1402,20 @@ class LogViewerController extends Controller
         ];
         $allowedActions = $permissions[$role] ?? [];
 
-        return in_array('*', $allowedActions) || in_array($action, $allowedActions);
+        if (in_array('*', $allowedActions) || in_array($action, $allowedActions)) {
+            // Enhance with Zero Trust check if configured
+            if (config('log-viewer.security.zero_trust.enabled', true)) {
+                $score = $this->trustEngine->calculateScore(request()->user());
+                $rawThreshold = config('log-viewer.security.zero_trust.threshold', 0.5);
+                $threshold = is_numeric($rawThreshold) ? (float) $rawThreshold : 0.5;
+
+                return $score >= $threshold;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

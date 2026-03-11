@@ -66,7 +66,6 @@ class LogCollection extends LazyCollection
      * @param  FilesystemContract  $filesystem
      * @return $this
      *
-     * @phpstan-return $this<string, \Skywalker\LogViewer\Entities\Log>
      */
     public function setFilesystem(FilesystemContract $filesystem)
     {

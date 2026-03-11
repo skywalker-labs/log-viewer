@@ -31,3 +31,7 @@ parameters:
             identifier: generics.notCompatible
         -
             identifier: generics.notGeneric
+        # LogCollection::setFilesystem fluid return missing type (Level 9 niche)
+        -
+            message: '#Method Skywalker\\LogViewer\\Entities\\LogCollection::setFilesystem\(\) return type has no value type specified in iterable type#'
+            path: src/Entities/LogCollection.php

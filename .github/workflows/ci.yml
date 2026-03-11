@@ -1,7 +1,6 @@
 name: tests
 
-permissions:
-  contents: read
+permissions: read-all
 
 on:
   push:
