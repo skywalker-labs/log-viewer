@@ -270,8 +270,8 @@ class LogViewer implements LogViewerContract
      * @return array<int, string>
      */
     public function dates(): array
-   {
-        return $this->factory->dates();
+    {
+        return array_values($this->factory->dates());
     }
 
     /**

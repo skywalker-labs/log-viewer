@@ -25,7 +25,10 @@ class ExportLogsAction extends Action
      */
     public function __construct(?Filesystem $filesystem = null)
     {
-        $this->filesystem = $filesystem ?? app(Filesystem::class);
+        /** @var Filesystem $fs */
+        $fs = $filesystem ?? app(Filesystem::class);
+
+        $this->filesystem = $fs;
     }
 
     /**
@@ -45,6 +48,9 @@ class ExportLogsAction extends Action
         /** @var \Skywalker\LogViewer\Http\Controllers\LogViewerController $controller */
         $controller = app(\Skywalker\LogViewer\Http\Controllers\LogViewerController::class);
 
-        return $controller->export(request(), $date, $level);
+        /** @var \Illuminate\Http\Request $request */
+        $request = request();
+
+        return $controller->export($request, $date, $level);
     }
 }

@@ -195,9 +195,9 @@ class LogCollection extends LazyCollection
      */
     public function total($level = 'all')
     {
-        return (int) $this->sum(function (Log $log) use ($level) {
+        return intval($this->sum(function (Log $log) use ($level) {
             return $log->entries($level)->count();
-        });
+        }));
     }
 
     /**
