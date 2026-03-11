@@ -48,8 +48,7 @@ class SearchLogsAction extends Action
                     return true;
                 }
 
-                /** @var string $query */
-                $queryLower = strtolower($query);
+                $queryLower = strtolower((string) $query);
 
                 /** @var \Skywalker\LogViewer\Entities\LogEntry $entry */
                 return str_contains(strtolower((string) $entry->header), $queryLower) ||
