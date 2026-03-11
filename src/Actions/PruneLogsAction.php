@@ -24,7 +24,7 @@ class PruneLogsAction extends Action
     public function __construct(?Filesystem $filesystem = null)
     {
         /** @var Filesystem $fs */
-        $fs = $filesystem ?? app(Filesystem::class);
+        $fs = $filesystem ?? \app(Filesystem::class);
 
         $this->filesystem = $fs;
     }
@@ -37,12 +37,12 @@ class PruneLogsAction extends Action
     public function execute(...$args): int
     {
         $arg = $args[0] ?? 0;
-        $retention = is_numeric($arg) ? (int) $arg : 0;
+        $retention = \is_numeric($arg) ? (int) $arg : 0;
         $deleted = 0;
         $dates = $this->filesystem->dates();
 
         foreach ($dates as $date) {
-            if (strtotime($date) < strtotime("-{$retention} days")) {
+            if (\strtotime($date) < \strtotime("-{$retention} days")) {
                 if ($this->filesystem->deleteByDate($date)) {
                     $deleted++;
                 }

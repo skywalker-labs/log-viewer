@@ -24,7 +24,7 @@ class ClearLogsAction extends Action
     public function __construct(?Filesystem $filesystem = null)
     {
         /** @var Filesystem $fs */
-        $fs = $filesystem ?? app(Filesystem::class);
+        $fs = $filesystem ?? \app(Filesystem::class);
 
         $this->filesystem = $fs;
     }

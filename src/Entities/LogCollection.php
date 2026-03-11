@@ -38,7 +38,7 @@ class LogCollection extends LazyCollection
     public function __construct($source = null)
     {
         /** @var FilesystemContract $filesystem */
-        $filesystem = app(FilesystemContract::class);
+        $filesystem = \app(FilesystemContract::class);
 
         $this->setFilesystem($filesystem);
 
@@ -108,7 +108,7 @@ class LogCollection extends LazyCollection
     public function paginate($perPage = 30)
     {
         /** @var \Illuminate\Http\Request $request */
-        $request = request();
+        $request = \request();
 
         $page = $request->get('page', 1);
         $page = is_numeric($page) ? (int) $page : 1;
@@ -195,7 +195,7 @@ class LogCollection extends LazyCollection
      */
     public function total($level = 'all')
     {
-        return intval($this->sum(function (Log $log) use ($level) {
+        return \intval($this->sum(function (Log $log) use ($level) {
             return $log->entries($level)->count();
         }));
     }

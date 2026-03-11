@@ -202,8 +202,8 @@ class LogViewer implements LogViewerContract
     public function download($date, $filename = null, $headers = []): BinaryFileResponse
     {
         if (is_null($filename)) {
-            $prefix = config('log-viewer.download.prefix', 'laravel-');
-            $extension = config('log-viewer.download.extension', 'log');
+            $prefix = \config('log-viewer.download.prefix', 'laravel-');
+            $extension = \config('log-viewer.download.extension', 'log');
 
             $filename = sprintf(
                 "%s{$date}.%s",
@@ -215,7 +215,7 @@ class LogViewer implements LogViewerContract
         $path = $this->filesystem->path($date);
 
         /** @var \Illuminate\Contracts\Routing\ResponseFactory $factory */
-        $factory = response();
+        $factory = \response();
 
         return $factory->download($path, $filename, $headers);
     }

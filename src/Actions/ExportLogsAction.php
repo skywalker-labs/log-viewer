@@ -7,6 +7,7 @@ namespace Skywalker\LogViewer\Actions;
 use Skywalker\LogViewer\Contracts\Utilities\Filesystem;
 
 use Skywalker\Support\Foundation\Action;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class     ExportLogsAction
@@ -26,7 +27,7 @@ class ExportLogsAction extends Action
     public function __construct(?Filesystem $filesystem = null)
     {
         /** @var Filesystem $fs */
-        $fs = $filesystem ?? app(Filesystem::class);
+        $fs = $filesystem ?? \app(Filesystem::class);
 
         $this->filesystem = $fs;
     }
@@ -46,10 +47,10 @@ class ExportLogsAction extends Action
         $level = is_string($arg1) ? $arg1 : 'all';
 
         /** @var \Skywalker\LogViewer\Http\Controllers\LogViewerController $controller */
-        $controller = app(\Skywalker\LogViewer\Http\Controllers\LogViewerController::class);
+        $controller = \app(\Skywalker\LogViewer\Http\Controllers\LogViewerController::class);
 
         /** @var \Illuminate\Http\Request $request */
-        $request = request();
+        $request = \request();
 
         return $controller->export($request, $date, $level);
     }
