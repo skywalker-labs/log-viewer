@@ -9,7 +9,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Skywalker\LogViewer\Contracts\LogViewer as LogViewerContract;
 use Skywalker\LogViewer\Entities\LogEntry;
@@ -1203,14 +1202,18 @@ class LogViewerController extends Controller
         if (! empty($settings['slack_webhook']) && is_string($settings['slack_webhook'])) {
             $slackWebhook = $settings['slack_webhook'];
             try {
-                Http::post($slackWebhook, $payload);
+                if (class_exists(\Illuminate\Support\Facades\Http::class)) {
+                    \Illuminate\Support\Facades\Http::post($slackWebhook, $payload);
+                }
             } catch (\Exception $e) {
             }
         }
         if (! empty($settings['discord_webhook']) && is_string($settings['discord_webhook'])) {
             $discordWebhook = $settings['discord_webhook'];
             try {
-                Http::post($discordWebhook, ['content' => "🚨 **LogViewer Alert** 🚨\n**Level:** ".strtoupper($level)."\n**Message:** ".$message]);
+                if (class_exists(\Illuminate\Support\Facades\Http::class)) {
+                    \Illuminate\Support\Facades\Http::post($discordWebhook, ['content' => "🚨 **LogViewer Alert** 🚨\n**Level:** ".strtoupper($level)."\n**Message:** ".$message]);
+                }
             } catch (\Exception $e) {
             }
         }
