@@ -151,7 +151,7 @@ jobs:
             testbench: 3.5.*
             phpunit: ^6.0
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ubuntu-latest
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version || 'prefer-stable' }} - ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -185,7 +185,7 @@ jobs:
           fi
 
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update --dev -W --no-audit
-          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-audit
+          composer update --${{ matrix.dependency-version || 'prefer-stable' }} --prefer-dist --no-interaction --no-audit
 
       - name: Execute tests
         run: vendor/bin/phpunit --colors=always
