@@ -17,6 +17,7 @@ use Skywalker\LogViewer\LogViewer;
 use Skywalker\LogViewer\Tables\StatsTable;
 use Skywalker\Support\Security\ZeroTrust\TrustEngine;
 use Skywalker\LogViewer\Actions\SearchLogsAction;
+use Skywalker\Support\Concerns\HasFilesystem;
 
 /**
  * Class     LogViewerController
@@ -25,6 +26,8 @@ use Skywalker\LogViewer\Actions\SearchLogsAction;
  */
 class LogViewerController extends Controller
 {
+    use HasFilesystem;
+
     /* -----------------------------------------------------------------
      |  Properties
      | -----------------------------------------------------------------
@@ -512,7 +515,7 @@ class LogViewerController extends Controller
         ];
 
         try {
-            $content = file_exists($path) ? file_get_contents($path) : '';
+            $content = $this->filesystem()->exists($path) ? $this->filesystem()->get($path) : '';
             $decoded = is_string($content) && $content !== '' ? json_decode($content, true) : [];
             $current = is_array($decoded) ? $decoded : [];
 
@@ -520,7 +523,7 @@ class LogViewerController extends Controller
             if (count($current) > 1000) {
                 $current = array_slice($current, -1000);
             }
-            file_put_contents($path, json_encode($current, JSON_PRETTY_PRINT));
+            $this->filesystem()->put($path, json_encode($current, JSON_PRETTY_PRINT));
         } catch (\Exception $e) {
             // Silently fail
         }
@@ -534,17 +537,13 @@ class LogViewerController extends Controller
     protected function getAuditLogs(): array
     {
         $path = storage_path('logs/log-viewer-audit.json');
-        if (! file_exists($path)) {
+        if (! $this->filesystem()->exists($path)) {
             return [];
         }
+        $content = (string) $this->filesystem()->get($path);
+        $decoded = json_decode($content, true);
 
-        $content = file_get_contents($path);
-        $logs = is_string($content) && $content !== '' ? json_decode($content, true) : [];
-        if (! is_array($logs)) {
-            $logs = [];
-        }
-
-        return array_reverse(array_slice($logs, -20)); // Last 20 actions
+        return array_reverse(is_array($decoded) ? $decoded : []);
     }
 
     /**
@@ -1324,46 +1323,6 @@ class LogViewerController extends Controller
         ]);
     }
 
-    /**
-     * Record an action in the audit log (legacy method).
-     *
-     * @param  array<string, mixed>  $details
-     */
-    protected function recordActionDuplicate(string $action, array $details = []): void
-    {
-        $path = storage_path('logs/log-viewer-audit.json');
-
-        // Safety check for directory
-        if (! file_exists(dirname($path))) {
-            @mkdir(dirname($path), 0755, true);
-        }
-
-        $fileContent = file_exists($path) ? file_get_contents($path) : '';
-        $audit = is_string($fileContent) && $fileContent !== '' ? json_decode($fileContent, true) : [];
-        if (! is_array($audit)) {
-            $audit = [];
-        } // Handle corrupted file
-
-        /** @var Request $request */
-        $request = request();
-        $user = $request->user();
-        /** @var string|int|null $userKey */
-        $userKey = ($user instanceof \Illuminate\Contracts\Auth\Authenticatable) ? $user->getAuthIdentifier() : null;
-        $audit[] = [
-            'time' => now()->toDateTimeString(),
-            'user' => $userKey !== null ? (string) $userKey : 'guest',
-            'action' => $action,
-            'details' => $details,
-            'ip' => $request->ip(),
-        ];
-
-        // Keep only last 1000 entries to prevent infinite growth
-        if (count($audit) > 1000) {
-            $audit = array_slice($audit, -1000);
-        }
-
-        file_put_contents($path, json_encode($audit, JSON_PRETTY_PRINT));
-    }
 
     /**
      * Get the current user role for LogViewer.
