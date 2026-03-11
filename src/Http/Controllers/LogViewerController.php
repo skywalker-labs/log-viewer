@@ -193,7 +193,10 @@ class LogViewerController extends Controller
         $this->authorizeAction('view_logs');
 
         if ($level === 'all') {
-            return redirect()->route($this->showRoute, [$date]);
+            /** @var \Illuminate\Routing\Redirector $redirector */
+            $redirector = redirect();
+
+            return $redirector->route($this->showRoute, [$date]);
         }
 
         $log = $this->getLogOrFail($date);
@@ -246,7 +249,9 @@ class LogViewerController extends Controller
         }
 
         $collection = collect($grouped)->sortByDesc('count');
-        $page = request()->get('page', 1);
+        /** @var \Illuminate\Http\Request $request */
+        $request = request();
+        $page = $request->get('page', 1);
         $page = is_numeric($page) ? (int) $page : 1;
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator<int, mixed> $paginator */
@@ -255,7 +260,7 @@ class LogViewerController extends Controller
             $collection->count(),
             $this->perPage,
             $page,
-            ['path' => request()->url(), 'query' => request()->query()]
+            ['path' => $request->url(), 'query' => $request->query()]
         );
 
         return $paginator;
@@ -342,7 +347,10 @@ class LogViewerController extends Controller
         $isRegex = $request->boolean('regex');
 
         if (is_null($query)) {
-            return redirect()->route($this->showRoute, [$date]);
+            /** @var \Illuminate\Routing\Redirector $redirector */
+            $redirector = redirect();
+
+            return $redirector->route($this->showRoute, [$date]);
         }
 
         $log = $this->getLogOrFail($date);
@@ -428,7 +436,10 @@ class LogViewerController extends Controller
             }
         }
 
-        return redirect()->route('log-viewer::logs.list');
+        /** @var \Illuminate\Routing\Redirector $redirector */
+        $redirector = redirect();
+
+        return $redirector->route('log-viewer::logs.list');
     }
 
     /* -----------------------------------------------------------------
@@ -453,7 +464,10 @@ class LogViewerController extends Controller
         $notificationSettings = $this->getNotificationSettings();
         $userRole = $this->getUserRole();
 
-        return view()->make("log-viewer::{$theme}.{$view}", array_merge($data, [
+        /** @var \Illuminate\Contracts\View\Factory $viewFactory */
+        $viewFactory = view();
+
+        return $viewFactory->make("log-viewer::{$theme}.{$view}", array_merge($data, [
             'notes' => $notes,
             'savedSearches' => $savedSearches,
             'notificationSettings' => $notificationSettings,
@@ -469,10 +483,13 @@ class LogViewerController extends Controller
         /** @var array<string, mixed> $params */
         $path = storage_path('logs/log-viewer-audit.json');
 
+        /** @var \Illuminate\Http\Request $request */
+        $request = request();
+
         $log = [
             'timestamp' => now()->toDateTimeString(),
             'user_id' => Auth::id() ?? 'guest',
-            'ip' => request()->ip(),
+            'ip' => $request->ip(),
             'action' => $action,
             'params' => $params,
         ];
@@ -597,7 +614,8 @@ class LogViewerController extends Controller
             $results->count(),
             $this->perPage,
             $page,
-            ['path' => $request->url(), 'query' => request()->query()]
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
         );
 
         return $this->view('global-search', compact('query', 'entries'));

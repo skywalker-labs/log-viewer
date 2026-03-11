@@ -19,7 +19,7 @@ abstract class AbstractTable implements TableContract
      | -----------------------------------------------------------------
      */
 
-    /** @var array<int, mixed> */
+    /** @var array<string|int, mixed> */
     private array $header = [];
 
     /** @var array<string|int, mixed> */
@@ -90,10 +90,7 @@ abstract class AbstractTable implements TableContract
         return $this;
     }
 
-    /**
-     * Get table header.
-     *
-     * @return array<int, mixed>
+     * @return array<string|int, mixed>
      */
     public function header()
     {
@@ -158,11 +155,7 @@ abstract class AbstractTable implements TableContract
         $this->footer = $this->prepareFooter($this->data);
     }
 
-    /**
-     * Prepare table header.
-     *
-     * @param  array<string, mixed>  $data
-     * @return array<int, mixed>
+     * @return array<string|int, mixed>
      */
     abstract protected function prepareHeader(array $data);
 

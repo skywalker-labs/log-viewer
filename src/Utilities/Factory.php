@@ -246,7 +246,7 @@ class Factory implements FactoryContract
     /**
      * List the log files (dates).
      *
-     * @return array<int, string>
+     * @return array<int, string>|array<string, string>
      */
     public function dates()
     {
