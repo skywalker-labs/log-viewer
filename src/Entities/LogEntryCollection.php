@@ -13,7 +13,7 @@ use Skywalker\LogViewer\Helpers\LogParser;
  *
  * @author   Mradul Sharma <skywalkerlknw@gmail.com>
  *
- * @phpstan-extends LazyCollection<int, LogEntry>
+ * @phpstan-implements \IteratorAggregate<int, LogEntry>
  */
 class LogEntryCollection extends LazyCollection
 {
@@ -26,7 +26,9 @@ class LogEntryCollection extends LazyCollection
      * Load raw log entries.
      *
      * @param  string  $raw
-     * @return self<int, LogEntry>
+     * @return self
+     *
+     * @phpstan-return self&iterable<int, LogEntry>
      */
     public static function load($raw)
     {
@@ -73,7 +75,9 @@ class LogEntryCollection extends LazyCollection
      * Get filtered log entries by level.
      *
      * @param  string  $level
-     * @return self<int, LogEntry>
+     * @return self
+     *
+     * @phpstan-return self&iterable<int, LogEntry>
      */
     public function filterByLevel($level)
     {
