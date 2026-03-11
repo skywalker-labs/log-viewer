@@ -1,6 +1,6 @@
 {
     "name": "skywalker-labs/log-viewer",
-    "description": "A powerful and highly customizable Log Viewer for Laravel, featuring a robust API, Role-Based Access Control (RBAC), AI-powered error analysis, performance insights, and automated reporting. Supports Laravel 5.x to 12.x with dark mode and multi-language support out of the box.",
+    "description": "A powerful and highly customizable Log Viewer for Laravel, featuring a robust API, Role-Based Access Control (RBAC), AI-powered error analysis, performance insights, and automated reporting. Supports Laravel 6.x to 12.x with dark mode and multi-language support out of the box.",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -50,12 +50,12 @@
         "skywalker-labs/toolkit": "^1.6.0"
     },
     "require-dev": {
-        "laravel/framework": "^5.8 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+        "laravel/framework": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
         "laravel/pint": "^1.0",
         "mockery/mockery": "^1.6",
-        "orchestra/testbench": "^3.8 || ^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
+        "orchestra/testbench": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0"
+        "phpunit/phpunit": "^9.0 || ^10.0 || ^11.0"
     },
     "autoload": {
         "psr-4": {
